@@ -30,6 +30,8 @@ class Square extends React.Component {
                 return '#000';
             case TileType.FREE:
                 return '#FFF';
+            case TileType.PATH:
+                return "#AFA";
             default:
                 return '#F00'
         }
@@ -77,6 +79,27 @@ class Grid extends React.Component {
     }
 }
 
+class ToggleButton extends React.Component {
+    getColor() {
+        return this.props.selected ? "#5F5" : "#F55"
+    }
+    getText() {
+        return (this.props.selected) ? this.props.whenOn : this.props.whenOff
+    }
+    render() {
+        return ( 
+            <button 
+                selected={this.props.selected}
+                onClick={this.props.onClick}
+                placeholder="block-toggle"
+                style={{backgroundColor:this.getColor()}}
+            >
+            {this.getText()}
+            </button>
+        );
+    }
+}
+
 class PathFinder extends React.Component {
     defaultSelectionMode = SelectionMode.BLOCK;
     defaultTileType = TileType.FREE
@@ -86,7 +109,8 @@ class PathFinder extends React.Component {
             mode: this.defaultSelectionMode,
             height: this.props.height,
             width: this.props.width,
-            grid: this.defaultGrid(this.props.height, this.props.width)
+            grid: this.defaultGrid(this.props.height, this.props.width),
+            selection: arrayBuilder(0),
         };
     }
 
@@ -101,14 +125,50 @@ class PathFinder extends React.Component {
         this.setState({grid:gridCopy});
     }
 
+    handleTileClick(i,j){
+        switch(this.state.mode) {
+            case SelectionMode.BLOCK:
+                this.switchBlock(i,j);
+                break;
+            case SelectionMode.PATH:
+                this.addToSelection(i,j);
+                break;
+            default:
+                break;
+                
+        }
+    }
+
+    switchSelectionMode() {
+        const newMode = (this.state.mode === SelectionMode.BLOCK) ? SelectionMode.PATH : SelectionMode.BLOCK;
+        this.setState({mode:newMode});
+    }
+
+    addToSelection(i,j) {
+        if(this.state.grid[i][j] === TileType.BLOCKED)return;
+        const selectionCopy = this.state.selection.map((e,_) => {return e});
+        const gridCopy = maxtrixCopy(this.state.grid, this.state.height, this.state.width);
+        gridCopy[i][j] = TileType.PATH;
+        selectionCopy.push((i,j));
+        this.setState({selection:selectionCopy, grid:gridCopy});
+    }
+
     render() {
         return (
+            <>
             <Grid 
-            grid={this.state.grid} 
-            height={this.state.height} 
-            width={this.state.width} 
-            onClick={(i,j) => {this.switchBlock(i,j)}}
+                grid={this.state.grid} 
+                height={this.state.height} 
+                width={this.state.width} 
+                onClick={(i,j) => {this.handleTileClick(i,j)}}
             />
+            <ToggleButton
+                selected={this.state.mode === SelectionMode.BLOCK}
+                onClick={() => {this.switchSelectionMode()}}
+                whenOn="Block Mode"
+                whenOff="Path Mode"
+            />
+            </>
         );
     }
 
