@@ -107,3 +107,29 @@ test('Clicking a free tile when in path mode should set it to path', () => {
   expectNotEmpty(getAllPathTiles(),1);
 });
 
+
+test('Clicking two free tiles in path mode shuld trigger shortest path algorithm and set more tile to path', () => {
+  render(<App />);
+  toggleSelectionMode();
+  expectEmpty(getAllPathTiles());
+  fireEvent.click(getAllFreeTiles()[0]);
+  expectNotEmpty(getAllPathTiles(), 1);
+  fireEvent.click(getAllFreeTiles()[5]);
+  expectNotEmpty(getAllPathTiles());
+  expect(getAllPathTiles().length < 2).toBe(false);
+  expect(getAllPathTiles().length > 2).toBe(true);
+});
+
+test('Third click in path mode should clear previous path', () => {
+  render(<App />);
+  toggleSelectionMode();
+  expectEmpty(getAllPathTiles());
+  fireEvent.click(getAllFreeTiles()[0]);
+  expectNotEmpty(getAllPathTiles(), 1);
+  fireEvent.click(getAllFreeTiles()[5]);
+  fireEvent.click(getAllFreeTiles()[10]);
+  expectNotEmpty(getAllPathTiles(), 1);
+});
+
+
+
