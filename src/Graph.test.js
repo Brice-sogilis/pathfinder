@@ -51,6 +51,17 @@ test('Graph .link method should update origin node edges', () => {
     expect(graph.edges.get(a).has(b)).toBe(true);
 });
 
+test('Bidirectionnal link', () => {
+    const graph = new Graph(alphaNodes);
+    graph.link(a, b);
+    graph.link(b, a);
+    expect(graph.getNumberOfEdges()).toBe(2);
+    expect(graph.edges.get(a).size).toBe(1);
+    expect(graph.edges.get(a).has(b)).toBe(true);
+    expect(graph.edges.get(b).size).toBe(1);
+    expect(graph.edges.get(b).has(a)).toBe(true);
+});
+
 test('Shortest path between adjacent nodes should have length 2', () => {
     const graph = new Graph(alphaNodes);
     graph.link(a, b);
@@ -70,4 +81,4 @@ test('Graph .shortestPath should return shortest path even when multiple paths a
     graph.link(b,c);
     graph.link(a,c);
     expect(graph.shortestPath(a,c)).toHaveLength(2);
-})
+});

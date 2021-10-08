@@ -1,4 +1,5 @@
 import React from 'react';
+import {LocatedNode, Graph} from './Graph'
 
 function arrayBuilder(n) {
     return Array(n).fill()
@@ -10,6 +11,15 @@ function matrix2D(height, width, fillWith) {
 
 function maxtrixCopy(mat, height, width) {
     return matrix2D(height, width, (i,j) => {return mat[i][j]})
+}
+
+function foreach2D(matrix, irange, jrange, exec) {
+    for(var i = 0; i < irange;i++) {
+        for(var j = 0; j < jrange; j++) {
+            const item = matrix[i][j];
+            exec(item, i ,j);
+        }
+    }
 }
 
 const TileType = {
@@ -117,21 +127,14 @@ class PathFinder extends React.Component {
     defaultGrid(height, width) {
         return matrix2D(height, width, () => {return this.defaultTileType});
     }
-
-    switchBlock(i,j) {
-        const prev = this.state.grid[i][j];
-        const gridCopy = maxtrixCopy(this.state.grid, this.state.height, this.state.width);
-        gridCopy[i][j] = (prev === TileType.BLOCKED)?TileType.FREE:TileType.BLOCKED
-        this.setState({grid:gridCopy});
-    }
-
+    
     handleTileClick(i,j){
         switch(this.state.mode) {
             case SelectionMode.BLOCK:
-                this.switchBlock(i,j);
+                this.handleBlockClick(i,j);
                 break;
             case SelectionMode.PATH:
-                this.addToSelection(i,j);
+                this.handlePathClick(i,j);
                 break;
             default:
                 break;
@@ -139,18 +142,80 @@ class PathFinder extends React.Component {
         }
     }
 
+    handleBlockClick(i,j) {
+        const prev = this.state.grid[i][j];
+        const gridCopy = maxtrixCopy(this.state.grid, this.state.height, this.state.width);
+        gridCopy[i][j] = (prev === TileType.BLOCKED)?TileType.FREE:TileType.BLOCKED
+        this.setState({grid:gridCopy});
+    }
+
+
+    
+    handlePathClick(i,j) {
+        if(this.state.grid[i][j] === TileType.BLOCKED)return;
+        var selectionCopy = this.state.selection.map((e,_) => {return e});
+        const gridCopy = maxtrixCopy(this.state.grid, this.state.height, this.state.width);
+        if(selectionCopy.length === 0) {
+            this.clearMatchingTile(gridCopy, this.state.height, this.state.width, TileType.PATH); //Erase previously drawn path from UI
+        }
+        gridCopy[i][j] = TileType.PATH;
+        selectionCopy.push([i,j]);
+        if(selectionCopy.length >= 2) {
+            const [origin, destination] = [selectionCopy[0], selectionCopy[1]];
+            this.applySelectionPath(gridCopy, origin, destination);
+            selectionCopy = []
+        }
+        this.setState({selection:selectionCopy, grid:gridCopy});
+    }
+    
     switchSelectionMode() {
         const newMode = (this.state.mode === SelectionMode.BLOCK) ? SelectionMode.PATH : SelectionMode.BLOCK;
         this.setState({mode:newMode});
     }
 
-    addToSelection(i,j) {
-        if(this.state.grid[i][j] === TileType.BLOCKED)return;
-        const selectionCopy = this.state.selection.map((e,_) => {return e});
-        const gridCopy = maxtrixCopy(this.state.grid, this.state.height, this.state.width);
-        gridCopy[i][j] = TileType.PATH;
-        selectionCopy.push((i,j));
-        this.setState({selection:selectionCopy, grid:gridCopy});
+    applySelectionPath(mutableGrid, origin, destination) {
+        const nodeMatrix = matrix2D(this.state.height, this.state.width, (i,j) => new LocatedNode(this.state.grid[i][j],i,j));
+        const nodes = []
+        const [origin_i, origin_j] = origin;
+        const [destination_i, destination_j] = destination;
+        const originNode = nodeMatrix[origin_i][origin_j];
+        const destinationNode = nodeMatrix[destination_i][destination_j];
+
+        foreach2D(nodeMatrix, this.state.height, this.state.width, (n, _, __) => {
+            nodes.push(n);
+        });
+
+        const graph = new Graph(nodes);
+
+        foreach2D(nodeMatrix, this.state.height, this.state.width, (n, i, j) => {
+            if(n.value === TileType.BLOCKED)return;
+
+            if(i>0 && mutableGrid[i-1][j] !== TileType.BLOCKED){
+                graph.link(nodeMatrix[i-1][j], n);
+                graph.link(n, nodeMatrix[i-1][j]);
+            }
+
+            if(j>0 && mutableGrid[i][j-1] !== TileType.BLOCKED){
+                graph.link(nodeMatrix[i][j-1], n);
+                graph.link(n, nodeMatrix[i][j-1]);
+            }
+        });
+
+        const path = graph.shortestPath(originNode, destinationNode);
+
+        if(path !== null){
+            for(let node of path) {
+                mutableGrid[node.i][node.j] = TileType.PATH;
+            }
+        }
+    }
+
+    clearMatchingTile(matrix, height, width, tileType, replacement = TileType.FREE) {
+        foreach2D(matrix, height, width, (t, i , j) => {
+            if(t === tileType){
+                matrix[i][j] = replacement;
+            }
+        });
     }
 
     render() {
@@ -171,7 +236,6 @@ class PathFinder extends React.Component {
             </>
         );
     }
-
 }
 
 export {PathFinder, TileType, SelectionMode, Grid, Square};
