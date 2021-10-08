@@ -1,25 +1,18 @@
-import logo from './logo.svg';
+//import logo from './logo.svg';
 import './App.css';
+import {PathFinder} from './PathFinder'
+const defaultPathFinderWidth = 25;
+const defaultPathFinderHeight = 10;
 
 function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload (Amazing !).
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-          </a>
+        <h1> PathFinder </h1>
       </header>
+      <PathFinder height={defaultPathFinderHeight} width={defaultPathFinderWidth}/>
     </div>
   );
 }
 
-export default App;
+export {App, defaultPathFinderWidth, defaultPathFinderHeight};
