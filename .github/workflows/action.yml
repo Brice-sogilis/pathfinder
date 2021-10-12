@@ -1,4 +1,4 @@
-name: Tests on push
+name: Frontend tests on push
 
 on:
   push:
@@ -16,7 +16,7 @@ jobs:
         with:
           node-version: 14.x
       - name: Install
-        run: npm ci
+        run: cd frontend && npm ci
       - name : Run tests
-        run: npm test -- --watchAll=false
+        run: cd frontend && npm test -- --watchAll=false
         
