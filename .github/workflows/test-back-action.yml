@@ -20,9 +20,15 @@ jobs:
       - name: Launch local mongo db
         run: |
           docker volume create test_data
+          docker network create test_network
           docker compose --file backend/services/mongo/mongo-stack.yml up --detach
+          docker build -t grid:test backend/services/grid-storage/test/
       - name: Run tests
-        run: cd backend/services/grid-storage && npm test
-      - name: Stop local mongo db
-        run: docker compose --file backend/services/mongo/mongo-stack.yml down
+        run: |
+          docker run --network test_network --name grid -it grid:test
+      - name: Stop local containers
+        run: |
+          docker rm -f grid
+          docker compose --file backend/services/mongo/mongo-stack.yml down
+
         

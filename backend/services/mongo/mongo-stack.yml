@@ -5,6 +5,8 @@ services:
   mongo:
     image: mongo
     restart: always
+    networks: 
+      - test_network
     ports:
       - 27017:27017
     volumes:
@@ -12,7 +14,9 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
-
+networks:
+  test_network:
+    name: test_network
 volumes: 
   test_data:
     external: true
