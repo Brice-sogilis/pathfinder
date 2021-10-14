@@ -8,7 +8,7 @@ on:
 
 jobs:
   grid-storage-npm-tests:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Use NodeJS
@@ -17,6 +17,12 @@ jobs:
           node-version: 14.x
       - name: Install
         run: cd backend/services/grid-storage && npm ci
-      - name : Run tests
+      - name: Launch local mongo db
+        run: |
+          docker volume create test_data
+          docker compose --file backend/services/mongo/mongo-stack.yml up --detach
+      - name: Run tests
         run: cd backend/services/grid-storage && npm test
+      - name: Stop local mongo db
+        run: docker compose --file backend/services/mongo/mongo-stack.yml down
         
