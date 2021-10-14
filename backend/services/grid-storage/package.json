@@ -4,7 +4,7 @@
   "description": "Character matrix persistence service",
   "main": "service.js",
   "scripts": {
-    "test": "mocha --reporter spec",
+    "test": "mocha --reporter spec --exit",
     "start": "node service.js",
     "lint": "eslint service.js"
   },
@@ -12,7 +12,9 @@
   "license": "ISC",
   "dependencies": {
     "chai": "^4.3.4",
+    "chai-as-promised": "^7.1.1",
     "express": "^4.17.1",
-    "mocha": "^9.1.2"
+    "mocha": "^9.1.2",
+    "mongodb": "^4.1.3"
   }
 }
