@@ -25,7 +25,7 @@ jobs:
           cd backend/services/grid-storage && docker build -t grid:test -f ./test/Dockerfile .
       - name: Run tests
         run: |
-          docker run --network test_network --name grid -it grid:test
+          docker run --network test_network --name grid grid:test
       - name: Stop local containers
         run: |
           docker rm -f grid
