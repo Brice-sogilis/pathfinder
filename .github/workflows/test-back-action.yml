@@ -22,7 +22,7 @@ jobs:
           docker volume create test_data
           docker network create test_network
           docker compose --file backend/services/mongo/mongo-stack.yml up --detach
-          docker build -t grid:test backend/services/grid-storage/test/
+          cd backend/services/grid-storage && docker build -t grid:test -f ./test/Dockerfile .
       - name: Run tests
         run: |
           docker run --network test_network --name grid -it grid:test
