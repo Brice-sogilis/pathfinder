@@ -12,6 +12,13 @@ function TODO() {
     assert.fail("TODO");
 }
 
+async function clear() {
+    await connectGridDatabase(DB_HOSTNAME_TEST, DB_PORT_TEST).then(async function (clt) {
+        const repo : GridCRUDRepository = new MongoGridCRUDRepository(clt);
+        repo.deleteAll();
+    });
+}
+
 describe('Database connection check', () => {
     it('Connect to mongo DB without error', function (done) {
         connectGridDatabase(DB_HOSTNAME_TEST, DB_PORT_TEST).then((res) => {
@@ -45,37 +52,48 @@ describe('Database connection check', () => {
     
 });
 
-describe('Grid CRUD Repository single object tests', function () {
+describe('Grid CRUD Repository with empty database', function () {
     const testGrid : GridDAO = new GridDAO("Test",["ABC","DEF","GHI"]);
+    beforeEach(async function() {
+        return clear();
+    });
+
+    afterEach(async function() {
+        return clear();
+    });
+
     it('Creates a grid without error', function(done) {
-        connectGridDatabase(DB_HOSTNAME_TEST, DB_PORT_TEST).then((clt) => {
+        connectGridDatabase(DB_HOSTNAME_TEST, DB_PORT_TEST).then(async (clt) => {
             const repo : GridCRUDRepository = new MongoGridCRUDRepository(clt);
-            expect(repo.createGrid(testGrid)).to.be.true;
-            expect(repo.listGrids()).not.to.be.empty;
+            expect(await repo.createGrid(testGrid)).to.be.true;
+            expect(await repo.listGrids()).not.to.be.empty;
+            repo.deleteAll();
             clt.close();
             done();
         });
     });
-
+    
     it('Lists empty grids without error', function (done) {
-        connectGridDatabase(DB_HOSTNAME_TEST, DB_PORT_TEST).then((clt) => {
+        connectGridDatabase(DB_HOSTNAME_TEST, DB_PORT_TEST).then(async (clt) => {
             const repo : GridCRUDRepository = new MongoGridCRUDRepository(clt);
-            expect(repo.listGrids()).to.be.empty;
+            expect(await repo.listGrids()).to.be.empty;
+            repo.deleteAll();
             clt.close();
             done();
         });
     });
-
+    
     it('Retrieves a correct grid after creation', function (done) {
-        connectGridDatabase(DB_HOSTNAME_TEST, DB_PORT_TEST).then((clt) => {
+        connectGridDatabase(DB_HOSTNAME_TEST, DB_PORT_TEST).then(async (clt) => {
             const repo : GridCRUDRepository = new MongoGridCRUDRepository(clt);
-            repo.createGrid(testGrid);
-            const gridBack = repo.getGridByName(testGrid.name);
-            expect(gridBack.name).to.equals(testGrid.name);
-            expect(gridBack.height).to.equals(testGrid.height);
-            expect(gridBack.width).to.equals(testGrid.width);
+            await repo.createGrid(testGrid);
+            var gridBack = await repo.getGridByName(testGrid.name);
+            expect(gridBack).to.be.not.null;
+            expect(gridBack!.name).to.equals(testGrid.name);
+            expect(gridBack!.height).to.equals(testGrid.height);
+            expect(gridBack!.width).to.equals(testGrid.width);
             for(var i = 0;i<testGrid.height;i++){
-                expect(gridBack.lines[i]).to.equals(testGrid.lines[i]);
+                expect(gridBack!.lines[i]).to.equals(testGrid.lines[i]);
             }
             clt.close();
             done();
@@ -83,12 +101,12 @@ describe('Grid CRUD Repository single object tests', function () {
     });
 
     it('Deletes a grid after creation', function(done) {
-        connectGridDatabase(DB_HOSTNAME_TEST, DB_PORT_TEST).then((clt) => {
+        connectGridDatabase(DB_HOSTNAME_TEST, DB_PORT_TEST).then(async (clt) => {
             const repo : GridCRUDRepository = new MongoGridCRUDRepository(clt);
-            repo.createGrid(testGrid);
-            expect(repo.listGrids()).not.to.be.empty;
-            expect(repo.deleteGridByName(testGrid.name)).to.be.true;
-            expect(repo.listGrids()).to.be.empty;
+            await repo.createGrid(testGrid);
+            expect(await repo.listGrids()).not.to.be.empty;
+            expect(await repo.deleteGridByName(testGrid.name)).to.be.true;
+            expect(await repo.listGrids()).to.be.empty;
             clt.close();
             done();
         });

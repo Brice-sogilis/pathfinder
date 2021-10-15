@@ -1,4 +1,4 @@
-import  {MongoClient} from 'mongodb'
+import  {Collection, MongoClient} from 'mongodb'
 
 async function connectGridDatabase(addr : string = '127.0.0.1', port : number = 27017) : Promise<MongoClient> {
     const url : string = `mongodb://root:example@${addr}:${port}`
@@ -24,29 +24,52 @@ class GridDAO {
 }
 
 interface GridCRUDRepository {
-    getGridByName(name : string) : GridDAO;
-    listGrids() : Array<GridDAO>;
-    createGrid(grid : GridDAO) : boolean;
-    deleteGridByName(name : string) : boolean;
+    getGridByName(name : string) : Promise<GridDAO | null>;
+    listGrids() : Promise<Array<GridDAO>>;
+    createGrid(grid : GridDAO) : Promise< boolean>;
+    deleteGridByName(name : string) : Promise<boolean>;
+    deleteAll() : Promise<Boolean>
 
 }
 
 class MongoGridCRUDRepository implements GridCRUDRepository {
     client : MongoClient
+    dbName = "grid-storage";
+    collectionName = "grids";
+
     constructor(client : MongoClient) {
         this.client = client;
     }
-    getGridByName(name: string): GridDAO {
-        throw TODO();
+
+    getCollection() : Collection<GridDAO> {
+        return this.client.db(this.dbName).collection(this.collectionName);
     }
-    listGrids(): GridDAO[] {
-        throw TODO();
+
+    async getGridByName(name: string): Promise<GridDAO | null> {
+        const res = await this.getCollection().findOne({name:name});
+        return res;
     }
-    createGrid(grid: GridDAO): boolean {
-        throw TODO();
+
+    async listGrids(): Promise<GridDAO[]> {
+        const res :Array<GridDAO> = [];
+        await this.getCollection().find({}).forEach(function(g) {
+            res.push(g);
+        });
+        return res;
     }
-    deleteGridByName(name: string): boolean {
-        throw TODO();
+
+    async createGrid(grid: GridDAO): Promise<boolean> {
+        const res = await this.getCollection().insertOne(grid);
+        return res.acknowledged;
+    }
+
+    async deleteGridByName(name: string): Promise<boolean> {
+        const res = await this.getCollection().deleteOne({name:name});
+        return res.acknowledged;
+    }
+
+    async deleteAll() : Promise<Boolean> {
+        return (await this.getCollection().deleteMany({})).acknowledged;
     }
 }
 
