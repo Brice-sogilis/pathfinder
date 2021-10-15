@@ -4,7 +4,7 @@ const expect = chai.expect;
 chai.use(chai_as_promised);
 chai.should();
 
-import {connectGridDatabase, GridCRUDRepository, GridDAO, MongoGridCRUDRepository} from '../mongo-utils'
+import {connectGridDatabase, GridCRUDRepository, GridDAO, MongoGridCRUDRepository} from '../mongo-utils';
 const DB_HOSTNAME_TEST : string = process.env.DB_HOSTNAME_TEST || '127.0.0.1'
 const DB_PORT_TEST : number = (process.env.DB_PORT_TEST) ? parseInt(process.env.DB_PORT_TEST) : 27017
 
