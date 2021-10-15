@@ -1,0 +1,34 @@
+name: Backend tests on push from dev
+
+on:
+  push:
+    branches: [ dev ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  grid-storage-npm-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use NodeJS
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14.x
+      - name: Install
+        run: cd backend/services/grid-storage && npm ci
+      - name: Launch local mongo db
+        run: |
+          docker volume create test_data
+          docker network create test_network
+          docker compose --file backend/services/mongo/mongo-stack.yml up --detach
+          cd backend/services/grid-storage && docker build -t grid:test -f ./test/Dockerfile .
+      - name: Run tests
+        run: |
+          docker run --network test_network --name grid grid:test
+      - name: Stop local containers
+        run: |
+          docker rm -f grid
+          docker compose --file backend/services/mongo/mongo-stack.yml down
+
+        

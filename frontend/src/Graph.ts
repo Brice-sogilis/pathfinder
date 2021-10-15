@@ -14,7 +14,7 @@ class Node<T> {
 class LocatedNode<T> extends Node<T> {
     i : number;
     j : number;
-    constructor(value : T, i : number, j : number){
+    constructor(value : T, i : number, j : number) {
         super(value);
         this.i = i;
         this.j = j;
@@ -24,10 +24,10 @@ class LocatedNode<T> extends Node<T> {
 /**
  * 
  */
-class ShortestPathItem<T,N extends Node<T>> {
+class ShortestPathItem<T, N extends Node<T>> {
     node : N
-    prev : ShortestPathItem<T,N> | null
-    constructor(node: N, prev: ShortestPathItem<T,N> | null) {
+    prev : ShortestPathItem<T, N> | null
+    constructor(node: N, prev: ShortestPathItem<T, N> | null) {
         this.node = node;
         this.prev = prev;
     }
@@ -45,16 +45,16 @@ class Graph<T, N extends Node<T>> {
     }
 
     getNumberOfEdges() {
-        var res = 0;
+        var res : number = 0;
         for(let nodeSet of this.edges.values()){
             res += nodeSet.size;
         }
         return res;
     }
 
-    buildPath(item : ShortestPathItem<T,N>) : Array<N> {
+    buildPath(item : ShortestPathItem<T, N>) : Array<N> {
         const res: Array<N> = [item.node]
-        var aux= item.prev;
+        var aux : ShortestPathItem<T, N> | null = item.prev;
         while(aux != null){
             res.push(aux.node);
             aux = aux.prev;
@@ -65,7 +65,7 @@ class Graph<T, N extends Node<T>> {
     shortestPath(origin : N, destination : N) {
         if(origin === destination)return [origin];
         const checked : Set<N> = new Set([origin]);
-        const queue : Array<ShortestPathItem<T,N>> = [new ShortestPathItem(origin, null)];
+        const queue : Array<ShortestPathItem<T, N>> = [new ShortestPathItem(origin, null)];
         while(queue.length > 0) {
             const item = queue.shift()!;
             if(item.node === destination){

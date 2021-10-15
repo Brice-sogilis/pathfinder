@@ -1,26 +1,6 @@
 import React from 'react';
 import {LocatedNode, Graph} from './Graph'
-
-function arrayBuilder(n) {
-    return Array(n).fill()
-}
-
-function matrix2D(height, width, fillWith) {
-    return arrayBuilder(height).map((_,i) => {return arrayBuilder(width).map((__, j) => {return fillWith(i,j)})});
-}
-
-function maxtrixCopy(mat, height, width) {
-    return matrix2D(height, width, (i,j) => {return mat[i][j]})
-}
-
-function foreach2D(matrix, irange, jrange, exec) {
-    for(var i = 0; i < irange;i++) {
-        for(var j = 0; j < jrange; j++) {
-            const item = matrix[i][j];
-            exec(item, i ,j);
-        }
-    }
-}
+import {arrayBuilder, matrix2D, matrixCopy, foreach2D} from './matrix'
 
 const TileType = {
     BLOCKED: '#',
@@ -144,7 +124,7 @@ class PathFinder extends React.Component {
 
     handleBlockClick(i,j) {
         const prev = this.state.grid[i][j];
-        const gridCopy = maxtrixCopy(this.state.grid, this.state.height, this.state.width);
+        const gridCopy = matrixCopy(this.state.grid, this.state.height, this.state.width);
         gridCopy[i][j] = (prev === TileType.BLOCKED)?TileType.FREE:TileType.BLOCKED
         this.setState({grid:gridCopy});
     }
@@ -154,7 +134,7 @@ class PathFinder extends React.Component {
     handlePathClick(i,j) {
         if(this.state.grid[i][j] === TileType.BLOCKED)return;
         var selectionCopy = this.state.selection.map((e,_) => {return e});
-        const gridCopy = maxtrixCopy(this.state.grid, this.state.height, this.state.width);
+        const gridCopy = matrixCopy(this.state.grid, this.state.height, this.state.width);
         if(selectionCopy.length === 0) {
             this.clearMatchingTile(gridCopy, this.state.height, this.state.width, TileType.PATH); //Erase previously drawn path from UI
         }
