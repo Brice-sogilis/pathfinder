@@ -13,6 +13,16 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
+  server:
+    image: service:grid
+    restart: always
+    networks:
+      - grid_network
+    ports:
+      - 8888:8888
+    environment:
+      DB_HOSTNAME: mongo
+      DB_PORT: 27017
 
 networks:
   grid_network:
@@ -20,4 +30,3 @@ networks:
 volumes: 
   grid_data:
     external: true
-    
