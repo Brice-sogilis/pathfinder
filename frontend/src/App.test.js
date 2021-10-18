@@ -108,7 +108,7 @@ test('Clicking a free tile when in path mode should set it to path', () => {
 });
 
 
-test('Clicking two free tiles in path mode shuld trigger shortest path algorithm and set more tile to path', () => {
+test('Clicking two free tiles in path mode should trigger shortest path algorithm and set more tile to path', () => {
   render(<App />);
   toggleSelectionMode();
   expectEmpty(getAllPathTiles());

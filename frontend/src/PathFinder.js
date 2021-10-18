@@ -1,7 +1,7 @@
 import React from 'react';
 import {LocatedNode, Graph} from './Graph'
 import {arrayBuilder, matrix2D, matrixCopy, foreach2D} from './matrix'
-
+const gridServiceBaseUrl = "http://localhost:8888/grid";
 const TileType = {
     BLOCKED: '#',
     FREE: '*',
@@ -90,6 +90,54 @@ class ToggleButton extends React.Component {
     }
 }
 
+class GridSaveForm extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {name: "Nomduturfu"};
+    }
+    handleChange(event) {
+        this.setState({name: event.target.value});
+    }
+    handleSubmit(event) {
+        this.props.onSubmit(this.state.name);
+        event.preventDefault();
+    }
+    render() {
+        return (
+            <div>
+                <form onChange={(e) => {this.handleChange(e)}}>
+                    <label>
+                    Name :
+                    <input type="text" name="name" />
+                    </label>
+                </form>
+                <button
+                    onClick={(e) => this.handleSubmit(e)}
+                    placeholder="grid-save">
+                    SAVE
+                </button>
+            </div>
+        )
+    }
+}
+
+class GridList extends React.Component {
+    renderGridItem(index) {
+        return (
+            <button onClick={() => {this.props.onClick(this.props.grids[index].name)}}>
+                {"#"+index+" "+this.props.grids[index].name}
+            </button>
+        )
+    }
+    render() {
+        return (
+            <ul>
+                {arrayBuilder(this.props.grids.length).map((_,i) => {return this.renderGridItem(i)})}
+            </ul>
+        )
+    }
+}
+
 class PathFinder extends React.Component {
     defaultSelectionMode = SelectionMode.BLOCK;
     defaultTileType = TileType.FREE
@@ -101,8 +149,50 @@ class PathFinder extends React.Component {
             width: this.props.width,
             grid: this.defaultGrid(this.props.height, this.props.width),
             selection: arrayBuilder(0),
+            gridList:[{name:"Maze"},{name:"Dedale"},{name:"Pan"}]
         };
+        
     }
+
+    componentDidMount() {
+        this.fetchGridsAndUpdate();
+    }
+
+    fetchGridsAndUpdate() {
+        fetch(gridServiceBaseUrl).then((res) => {return res.json()}).then((obj) => {this.setState({gridList:obj})}).catch((error) => {
+            console.log(error);
+        });
+        
+    }
+    formatGrid(name) {
+        const lines = []
+        var line = ""
+        foreach2D(this.state.grid, this.state.height, this.state.width, (_, i, j) => {
+            line+=this.state.grid[i][j]
+            if(j === this.state.width-1){
+                lines.push(line);
+                line = "";
+            }
+            
+        });
+        return {name:name, lines:lines};
+    }
+    createGrid(name) {
+        return fetch(gridServiceBaseUrl,{method: "POST", headers: { 'Content-Type': 'application/json' }, body : JSON.stringify(this.formatGrid(name))}).then((_) => {this.fetchGridsAndUpdate()})
+        .catch((err) => {console.log(err);});
+    }
+    getGrid(name) {
+        return fetch(gridServiceBaseUrl+"/"+name).then((res) => {return res.json()}).then((obj) => {
+            const newGrid = matrix2D(obj.lines.length, obj.lines[0].length, (i,j) => {return obj.lines[i][j]});
+            this.setState({grid:newGrid, selection : []});
+        });
+    }
+
+    /*
+    componentWillUnmount() {
+        clearTimeout(this.fetchId);
+    }
+    */
 
     defaultGrid(height, width) {
         return matrix2D(height, width, () => {return this.defaultTileType});
@@ -212,6 +302,13 @@ class PathFinder extends React.Component {
                 onClick={() => {this.switchSelectionMode()}}
                 whenOn="Block Mode"
                 whenOff="Path Mode"
+            />
+            <GridList
+                grids = {this.state.gridList}
+                onClick = {(name) => {this.getGrid(name)}}
+            />
+            <GridSaveForm
+                onSubmit={(name) => {this.createGrid(name).then(() => {console.log('Hey')})}}
             />
             </>
         );
