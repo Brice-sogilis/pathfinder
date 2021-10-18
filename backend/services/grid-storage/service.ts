@@ -1,5 +1,6 @@
 import http from 'http';
 import express from 'express';
+import cors from 'cors';
 import {MongoGridCRUDRepository, connectGridDatabase} from './mongo-utils';
 
 let DB_HOSTNAME = process.env.DB_HOSTNAME
@@ -39,6 +40,6 @@ app.post("/grid", async function(req, res) {
     await (await getRepository()).createGrid(req.body);
     res.sendStatus(201);
 });
-
+app.use(cors());
 app.listen(8888);
 export {app}
