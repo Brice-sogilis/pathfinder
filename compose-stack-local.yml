@@ -6,14 +6,12 @@ services:
     restart: always
     networks: 
       - grid_network
-    ports:
-      - 27017:27017
     volumes:
       - grid_data:/data/db
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
-  server:
+  grid:
     image: service:grid
     restart: always
     networks:
@@ -23,6 +21,16 @@ services:
     environment:
       DB_HOSTNAME: mongo
       DB_PORT: 27017
+  frontend:
+    image: service:front
+    restart: always
+    networks:
+      - grid_network
+    ports:
+      - 5000:5000
+    environment:
+      GRID_HOSTNAME: grid
+
 
 networks:
   grid_network:

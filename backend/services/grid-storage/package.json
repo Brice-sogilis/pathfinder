@@ -5,18 +5,22 @@
   "main": "service.js",
   "scripts": {
     "test": "mocha --reporter spec --exit",
-    "start": "node service.js",
-    "lint": "eslint service.js"
+    "start": "tsc && node build/service.js",
+    "lint": "eslint service.ts"
   },
   "author": "Brice Decaestecker",
   "license": "ISC",
   "dependencies": {
     "@types/chai": "^4.2.22",
     "@types/chai-as-promised": "^7.1.4",
+    "@types/cors": "^2.8.12",
+    "@types/express": "^4.17.13",
     "@types/mocha": "^9.0.0",
     "@types/mongodb": "^4.0.7",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
+    "chai-http": "^4.3.0",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "mocha": "^9.1.2",
     "mongodb": "^4.1.3",

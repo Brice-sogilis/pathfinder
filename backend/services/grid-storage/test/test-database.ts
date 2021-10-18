@@ -4,10 +4,10 @@ const expect = chai.expect;
 chai.use(chai_as_promised);
 chai.should();
 
-import {connectGridDatabase, GridCRUDRepository, GridDAO, MongoGridCRUDRepository} from '../mongo-utils'
+import {connectGridDatabase, GridCRUDRepository, GridDAO, MongoGridCRUDRepository} from '../mongo-utils';
 const DB_HOSTNAME_TEST : string = process.env.DB_HOSTNAME_TEST || '127.0.0.1'
 const DB_PORT_TEST : number = (process.env.DB_PORT_TEST) ? parseInt(process.env.DB_PORT_TEST) : 27017
-
+const testGrid : GridDAO = new GridDAO("Test",["ABC","DEF","GHI"]);
 function TODO() {
     assert.fail("TODO");
 }
@@ -53,7 +53,6 @@ describe('Database connection check', () => {
 });
 
 describe('Grid CRUD Repository with empty database', function () {
-    const testGrid : GridDAO = new GridDAO("Test",["ABC","DEF","GHI"]);
     beforeEach(async function() {
         return clear();
     });
@@ -112,3 +111,5 @@ describe('Grid CRUD Repository with empty database', function () {
         });
     });
 });
+
+export {clear, testGrid}
