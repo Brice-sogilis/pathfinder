@@ -10,7 +10,7 @@ let repository : MongoGridCRUDRepository | null = null;
 
 let app = express();
 app.use(express.json());
-
+app.use(cors());
 async function getRepository() : Promise<MongoGridCRUDRepository> {
     if(repository !== null) return repository;
     else {
@@ -40,6 +40,6 @@ app.post("/grid", async function(req, res) {
     await (await getRepository()).createGrid(req.body);
     res.sendStatus(201);
 });
-app.use(cors());
+
 app.listen(8888);
 export {app}
