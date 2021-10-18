@@ -65,7 +65,7 @@ class MongoGridCRUDRepository implements GridCRUDRepository {
 
     async deleteGridByName(name: string): Promise<boolean> {
         const res = await this.getCollection().deleteOne({name:name});
-        return res.acknowledged;
+        return res.acknowledged && (res.deletedCount === 1);
     }
 
     async deleteAll() : Promise<Boolean> {

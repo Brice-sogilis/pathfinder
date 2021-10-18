@@ -1,6 +1,5 @@
 import {render, fireEvent, cleanup, screen} from '@testing-library/react';
 import {App, defaultPathFinderWidth, defaultPathFinderHeight} from './App';
-import {PathFinder, TileType, SelectionMode} from './PathFinder';
 
 const defaultTileRegexp = /\*/
 const blockedTileRegexp = /#/
@@ -108,7 +107,7 @@ test('Clicking a free tile when in path mode should set it to path', () => {
 });
 
 
-test('Clicking two free tiles in path mode shuld trigger shortest path algorithm and set more tile to path', () => {
+test('Clicking two free tiles in path mode should trigger shortest path algorithm and set more tile to path', () => {
   render(<App />);
   toggleSelectionMode();
   expectEmpty(getAllPathTiles());
