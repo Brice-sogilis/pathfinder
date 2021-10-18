@@ -1,7 +1,8 @@
 import http from 'http';
 import express from 'express';
 import cors from 'cors';
-import {MongoGridCRUDRepository, connectGridDatabase} from './mongo-utils';
+import {connectGridDatabase} from './mongo-utils';
+import {MongoGridCRUDRepository} from './GridDAO'
 
 let DB_HOSTNAME = process.env.DB_HOSTNAME
 let DB_PORT = (process.env.DB_PORT) ? parseInt(process.env.DB_PORT) : 27017
