@@ -22,7 +22,7 @@ class LocatedNode<T> extends Node<T> {
 }
 
 /**
- * 
+ * An item representing a node in a path, with the link to the previous item or null if this is the first node of the path
  */
 class ShortestPathItem<T, N extends Node<T>> {
     node : N
@@ -33,6 +33,9 @@ class ShortestPathItem<T, N extends Node<T>> {
     }
 }
 
+/**
+ * A directed graph with equally weighted edges
+ */
 class Graph<T, N extends Node<T>> {
     nodes : Array<N>
     edges : Map<N, Set<N>>
@@ -44,6 +47,7 @@ class Graph<T, N extends Node<T>> {
         }
     }
 
+    //Total number of edges in the graph
     getNumberOfEdges() {
         var res : number = 0;
         for(let nodeSet of this.edges.values()){
@@ -52,6 +56,10 @@ class Graph<T, N extends Node<T>> {
         return res;
     }
 
+    /*     
+        Return an array of node representing a shortest path from the last item of the path
+        Backtrack using items'link to their parent, building the path array along the way 
+    */
     buildPath(item : ShortestPathItem<T, N>) : Array<N> {
         const res: Array<N> = [item.node]
         var aux : ShortestPathItem<T, N> | null = item.prev;
@@ -62,6 +70,10 @@ class Graph<T, N extends Node<T>> {
         return res.reverse();
     }
 
+    /*
+        Return an array representing the shortest path between two nodes
+        Use the flood algoirtmh(equivalent to dijkstra beacause the edges are equally weighted)
+    */
     shortestPath(origin : N, destination : N) {
         if(origin === destination)return [origin];
         const checked : Set<N> = new Set([origin]);
@@ -83,6 +95,11 @@ class Graph<T, N extends Node<T>> {
         return null;
     }
 
+    /*
+        Add an edge between two nodes in the graph
+        If the two nodes are already linked, do nothing
+        If one of the node is not in the graph, do nothing
+    */
     link(origin : N, destination : N) {
         if(!this.edges.has(origin) || !this.edges.has(destination))return;
         if(origin !== destination){

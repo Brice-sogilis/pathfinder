@@ -1,6 +1,5 @@
 import {render, fireEvent, cleanup, screen} from '@testing-library/react';
 import {App, defaultPathFinderWidth, defaultPathFinderHeight} from './App';
-import {PathFinder, TileType, SelectionMode} from './PathFinder';
 
 const defaultTileRegexp = /\*/
 const blockedTileRegexp = /#/
