@@ -26,6 +26,6 @@ docker compose -f ./compose/compose-stak-test.yml up -d
     ```
 ## Tear down
 ```
-docker compose -f ./compose/compose-stak-test.yml down
+docker compose -f ./compose/compose-stack-test.yml down
 ```
 
