@@ -1,0 +1,18 @@
+syntax = "proto3";
+package pingpong;
+message PingPongBody {
+    string tag = 1;
+    int64 id = 2;
+}
+
+message Ping {
+    PingPongBody ping = 1;
+}
+
+message Pong {
+    PingPongBody pong = 1;
+}
+
+service PongService {
+    rpc sendPing(Ping) returns (Pong) {};
+}
