@@ -5,9 +5,34 @@ const expect = chai.expect;
 chai.use(chai_as_promised);
 chai.use(chaiHttp);
 let should = chai.should();
-
-import {app} from '../service';
+import {GridDAO, GridCRUDRepository} from '../GridDAO';
+import {Gateway, getRepository} from '../service';
 import {clear, testGrid} from './test-database';
+class MockGridCRUDRepository implements GridCRUDRepository {
+    getGridByName(name: string): Promise<GridDAO | null> {
+        throw new Error('Method not implemented.');
+    }
+    listGrids(): Promise<GridDAO[]> {
+        throw new Error('Method not implemented.');
+    }
+    createGrid(grid: GridDAO): Promise<boolean> {
+        throw new Error('Method not implemented.');
+    }
+    deleteGridByName(name: string): Promise<boolean> {
+        throw new Error('Method not implemented.');
+    }
+    deleteAll(): Promise<Boolean> {
+        throw new Error('Method not implemented.');
+    }
+}
+function getMockAsPromise() : Promise<GridCRUDRepository> {
+    return new Promise((res, reject) => {
+        res(new MockGridCRUDRepository())
+    });
+}
+const gw : Gateway = new Gateway(getMockAsPromise());
+const app = gw.app;
+
 describe("GET /grid", function() {
     beforeEach(async function() {
         return clear();

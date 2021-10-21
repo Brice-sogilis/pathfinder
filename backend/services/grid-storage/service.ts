@@ -1,7 +1,7 @@
-import express from 'express';
+import express, { Application } from 'express';
 import cors from 'cors';
 import {connectGridDatabase} from './mongo-utils';
-import {MongoGridCRUDRepository} from './GridDAO';
+import {GridCRUDRepository, MongoGridCRUDRepository} from './GridDAO';
 import * as grpc from "@grpc/grpc-js";
 import * as messages from "./pb/grid_pb";
 import * as services from "./pb/grid_grpc_pb";
@@ -12,9 +12,46 @@ let mongoClient = connectGridDatabase(DB_HOSTNAME, DB_PORT);
 let repository : MongoGridCRUDRepository | null = null;
 
 /* vvvvvv TO MIGRATE TO GATEWAY vvvvvv*/
-let app = express();
-app.use(express.json());
-app.use(cors());
+class Gateway {
+    app: Application
+    repositoryAccess: Promise<GridCRUDRepository>
+    constructor(repositoryAccess : Promise<GridCRUDRepository>) {
+        this.app = express();
+        this.app.use(express.json());
+        this.app.use(cors());
+        this.repositoryAccess = repositoryAccess;
+        this.configRoutes();
+    }
+
+    configRoutes(){
+        this.app.get("/health", function(req, res) {
+            res.sendStatus(200);
+        });
+        
+        this.app.get("/grid", async (req, res) => {
+            res.status(200).send(await (await this.repositoryAccess).listGrids());
+        });
+        
+        this.app.get("/grid/:name", async (req, res) => {
+            res.status(200).send(await(await this.repositoryAccess).getGridByName(req.params.name));
+        });
+        
+        this.app.delete("/grid/:name", async (req, res) => {
+            const present = await (await this.repositoryAccess).deleteGridByName(req.params.name);
+            res.sendStatus((present)?200:404);
+        });
+        
+        this.app.post("/grid", async (req, res) => {
+            await (await this.repositoryAccess).createGrid(req.body);
+            res.sendStatus(201);
+        });
+    }
+
+    listen(port : number) {
+        return this.app.listen(port);
+    }
+}
+
 async function getRepository() : Promise<MongoGridCRUDRepository> {
     if(repository !== null) return repository;
     else {
@@ -23,30 +60,10 @@ async function getRepository() : Promise<MongoGridCRUDRepository> {
     }
 }
 
-app.get("/health", function(req, res) {
-    res.sendStatus(200);
-});
-
-app.get("/grid", async function(req, res) {
-    res.status(200).send(await (await getRepository()).listGrids());
-});
-
-app.get("/grid/:name", async function (req, res) {
-    res.status(200).send(await(await getRepository()).getGridByName(req.params.name));
-});
-
-app.delete("/grid/:name", async function name(req, res) {
-    const present = await (await getRepository()).deleteGridByName(req.params.name);
-    res.sendStatus((present)?200:404);
-});
-
-app.post("/grid", async function(req, res) {
-    await (await getRepository()).createGrid(req.body);
-    res.sendStatus(201);
-});
-
-app.listen(8888);
-export {app}
+var gateway = new Gateway(getRepository());
+gateway.listen(8888);
+var exportedApp = gateway.app;
+export {Gateway, getRepository};
 /* ^^^^^^ TO MIGRATE TO GATEWAY ^^^^^^ */
 
 /* vvvvvv NEW GRPC SERVER vvvvvv */
