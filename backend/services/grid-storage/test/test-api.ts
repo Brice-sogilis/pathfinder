@@ -1,4 +1,4 @@
-import chai, { assert } from 'chai'
+import chai from 'chai'
 import chai_as_promised from 'chai-as-promised';
 import chaiHttp from 'chai-http';
 const expect = chai.expect;
