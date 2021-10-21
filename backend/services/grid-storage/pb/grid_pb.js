@@ -18,7 +18,7 @@ var global = Function('return this')();
 goog.exportSymbol('proto.grid.BooleanResponse', null, global);
 goog.exportSymbol('proto.grid.CreateGridRequest', null, global);
 goog.exportSymbol('proto.grid.Grid', null, global);
-goog.exportSymbol('proto.grid.deleteAllGridRequest', null, global);
+goog.exportSymbol('proto.grid.deleteAllGridsRequest', null, global);
 goog.exportSymbol('proto.grid.getAllGridsRequest', null, global);
 goog.exportSymbol('proto.grid.getGridByNameRequest', null, global);
 /**
@@ -136,16 +136,16 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.grid.deleteAllGridRequest = function(opt_data) {
+proto.grid.deleteAllGridsRequest = function(opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
-goog.inherits(proto.grid.deleteAllGridRequest, jspb.Message);
+goog.inherits(proto.grid.deleteAllGridsRequest, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.grid.deleteAllGridRequest.displayName = 'proto.grid.deleteAllGridRequest';
+  proto.grid.deleteAllGridsRequest.displayName = 'proto.grid.deleteAllGridsRequest';
 }
 
 /**
@@ -921,8 +921,8 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
  *     http://goto/soy-param-migration
  * @return {!Object}
  */
-proto.grid.deleteAllGridRequest.prototype.toObject = function(opt_includeInstance) {
-  return proto.grid.deleteAllGridRequest.toObject(opt_includeInstance, this);
+proto.grid.deleteAllGridsRequest.prototype.toObject = function(opt_includeInstance) {
+  return proto.grid.deleteAllGridsRequest.toObject(opt_includeInstance, this);
 };
 
 
@@ -931,11 +931,11 @@ proto.grid.deleteAllGridRequest.prototype.toObject = function(opt_includeInstanc
  * @param {boolean|undefined} includeInstance Deprecated. Whether to include
  *     the JSPB instance for transitional soy proto support:
  *     http://goto/soy-param-migration
- * @param {!proto.grid.deleteAllGridRequest} msg The msg instance to transform.
+ * @param {!proto.grid.deleteAllGridsRequest} msg The msg instance to transform.
  * @return {!Object}
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.grid.deleteAllGridRequest.toObject = function(includeInstance, msg) {
+proto.grid.deleteAllGridsRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
 
   };
@@ -951,23 +951,23 @@ proto.grid.deleteAllGridRequest.toObject = function(includeInstance, msg) {
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.grid.deleteAllGridRequest}
+ * @return {!proto.grid.deleteAllGridsRequest}
  */
-proto.grid.deleteAllGridRequest.deserializeBinary = function(bytes) {
+proto.grid.deleteAllGridsRequest.deserializeBinary = function(bytes) {
   var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.grid.deleteAllGridRequest;
-  return proto.grid.deleteAllGridRequest.deserializeBinaryFromReader(msg, reader);
+  var msg = new proto.grid.deleteAllGridsRequest;
+  return proto.grid.deleteAllGridsRequest.deserializeBinaryFromReader(msg, reader);
 };
 
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
  * given reader into the given message object.
- * @param {!proto.grid.deleteAllGridRequest} msg The message object to deserialize into.
+ * @param {!proto.grid.deleteAllGridsRequest} msg The message object to deserialize into.
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.grid.deleteAllGridRequest}
+ * @return {!proto.grid.deleteAllGridsRequest}
  */
-proto.grid.deleteAllGridRequest.deserializeBinaryFromReader = function(msg, reader) {
+proto.grid.deleteAllGridsRequest.deserializeBinaryFromReader = function(msg, reader) {
   while (reader.nextField()) {
     if (reader.isEndGroup()) {
       break;
@@ -987,9 +987,9 @@ proto.grid.deleteAllGridRequest.deserializeBinaryFromReader = function(msg, read
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.grid.deleteAllGridRequest.prototype.serializeBinary = function() {
+proto.grid.deleteAllGridsRequest.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  proto.grid.deleteAllGridRequest.serializeBinaryToWriter(this, writer);
+  proto.grid.deleteAllGridsRequest.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
@@ -997,11 +997,11 @@ proto.grid.deleteAllGridRequest.prototype.serializeBinary = function() {
 /**
  * Serializes the given message to binary data (in protobuf wire
  * format), writing to the given BinaryWriter.
- * @param {!proto.grid.deleteAllGridRequest} message
+ * @param {!proto.grid.deleteAllGridsRequest} message
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.grid.deleteAllGridRequest.serializeBinaryToWriter = function(message, writer) {
+proto.grid.deleteAllGridsRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
 };
 

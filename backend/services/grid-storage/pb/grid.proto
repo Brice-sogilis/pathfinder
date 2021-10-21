@@ -16,11 +16,11 @@ message BooleanResponse {
     bool ok = 1;
 }
 message getAllGridsRequest {}
-message deleteAllGridRequest {}
+message deleteAllGridsRequest {}
 
 service GridStore {
     rpc createGrid(CreateGridRequest) returns (BooleanResponse) {};
     rpc getGridByName(getGridByNameRequest) returns (Grid) {};
     rpc getAllGrids(getAllGridsRequest) returns (stream Grid) {};
-    rpc deleteAllGrids(deleteAllGridRequest) returns (BooleanResponse) {};
+    rpc deleteAllGrids(deleteAllGridsRequest) returns (BooleanResponse) {};
 }

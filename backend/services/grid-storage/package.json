@@ -47,6 +47,6 @@
       "ts"
     ],
     "require": "ts-node/register",
-    "timeout": 2500
+    "timeout": 5000
   }
 }

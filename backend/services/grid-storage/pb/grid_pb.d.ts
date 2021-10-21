@@ -115,18 +115,18 @@ export namespace getAllGridsRequest {
   }
 }
 
-export class deleteAllGridRequest extends jspb.Message {
+export class deleteAllGridsRequest extends jspb.Message {
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): deleteAllGridRequest.AsObject;
-  static toObject(includeInstance: boolean, msg: deleteAllGridRequest): deleteAllGridRequest.AsObject;
+  toObject(includeInstance?: boolean): deleteAllGridsRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: deleteAllGridsRequest): deleteAllGridsRequest.AsObject;
   static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-  static serializeBinaryToWriter(message: deleteAllGridRequest, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): deleteAllGridRequest;
-  static deserializeBinaryFromReader(message: deleteAllGridRequest, reader: jspb.BinaryReader): deleteAllGridRequest;
+  static serializeBinaryToWriter(message: deleteAllGridsRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): deleteAllGridsRequest;
+  static deserializeBinaryFromReader(message: deleteAllGridsRequest, reader: jspb.BinaryReader): deleteAllGridsRequest;
 }
 
-export namespace deleteAllGridRequest {
+export namespace deleteAllGridsRequest {
   export type AsObject = {
   }
 }

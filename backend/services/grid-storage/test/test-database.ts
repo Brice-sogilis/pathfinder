@@ -6,9 +6,9 @@ chai.should();
 
 import {connectGridDatabase} from '../mongo-utils';
 import {GridCRUDRepository, GridDAO, MongoGridCRUDRepository} from '../GridDAO'
+import {testGrid} from './common'
 const DB_HOSTNAME_TEST : string = process.env.DB_HOSTNAME_TEST || '127.0.0.1'
 const DB_PORT_TEST : number = (process.env.DB_PORT_TEST) ? parseInt(process.env.DB_PORT_TEST) : 27017
-const testGrid : GridDAO = new GridDAO("Test",["ABC","DEF","GHI"]);
 function TODO() {
     assert.fail("TODO");
 }
