@@ -8,25 +8,46 @@ let should = chai.should();
 import {GridDAO, GridCRUDRepository} from '../GridDAO';
 import {Gateway, getRepository} from '../service';
 import {clear, testGrid} from './test-database';
+
 class MockGridCRUDRepository implements GridCRUDRepository {
+    grids : Map<string, GridDAO>
+    constructor(){
+        this.grids = new Map<string, GridDAO>();
+    }
+    asPromise<T>(value : T) : Promise<T> {
+        return new Promise((res, _) => {
+            res(value);
+        })
+    }
     getGridByName(name: string): Promise<GridDAO | null> {
-        throw new Error('Method not implemented.');
+        var res = this.grids.get(name);
+        return this.asPromise((res)?res:null);
     }
+
     listGrids(): Promise<GridDAO[]> {
-        throw new Error('Method not implemented.');
+        var res : Array<GridDAO> = [];
+        for(var i in this.grids.keys) {
+            res.push(this.grids.get(i)!);
+        }
+        return this.asPromise(res);
     }
+
     createGrid(grid: GridDAO): Promise<boolean> {
-        throw new Error('Method not implemented.');
+        this.grids.set(grid.name, grid);
+        return this.asPromise(true);
     }
+
     deleteGridByName(name: string): Promise<boolean> {
-        throw new Error('Method not implemented.');
+        return this.asPromise(this.grids.delete(name));
     }
+
     deleteAll(): Promise<Boolean> {
-        throw new Error('Method not implemented.');
+        this.grids.clear();
+        return this.asPromise(true);
     }
 }
 function getMockAsPromise() : Promise<GridCRUDRepository> {
-    return new Promise((res, reject) => {
+    return new Promise((res, _) => {
         res(new MockGridCRUDRepository())
     });
 }
