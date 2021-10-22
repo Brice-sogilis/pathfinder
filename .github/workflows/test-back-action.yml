@@ -36,8 +36,8 @@ jobs:
         with:
           node-version: 14.x
       - name: Install
-        run: cd backend/services/grid-storage && npm ci      
+        run: cd backend/services/gateway && npm ci      
       - name: Run tests
-        run: cd backend/services/grid-storage && npm test
+        run: cd backend/services/gateway && npm test
 
         
