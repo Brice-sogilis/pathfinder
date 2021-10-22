@@ -1,16 +1,19 @@
-import chai, { assert } from 'chai'
+import chai from 'chai'
 import chai_as_promised from 'chai-as-promised';
 import chaiHttp from 'chai-http';
 const expect = chai.expect;
 chai.use(chai_as_promised);
 chai.use(chaiHttp);
 let should = chai.should();
-
-import {app} from '../gateway';
-const testGrid = {lines:["AAA","BBB","CCC"], name:"test",width:3,height:3}
+import {GridDAO, GridCRUDRepository} from '../../grid-storage/GridDAO';
+import {Gateway} from '../gateway';
+import {testGrid, getMockAsPromise} from '../../grid-storage/test/common';
+const gw : Gateway = new Gateway(getMockAsPromise());
+const app = gw.app;
 async function clear() {
-    return await chai.request(app).delete("/grid");
+    return (await gw.repositoryAccess).deleteAll();
 }
+
 describe("GET /grid", function() {
     beforeEach(async function() {
         return clear();
@@ -64,7 +67,7 @@ describe("POST /grid", function() {
     });
 });
 
-describe("DEL /grid/:name", function() {
+describe("DEl /grid/:name", function() {
     beforeEach(async function() {
         return clear();
     });

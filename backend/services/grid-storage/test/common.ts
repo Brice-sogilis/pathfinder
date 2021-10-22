@@ -32,7 +32,7 @@ class MockGridCRUDRepository implements GridCRUDRepository {
         return this.asPromise(this.grids.delete(name));
     }
 
-    deleteAll(): Promise<Boolean> {
+    deleteAll(): Promise<boolean> {
         this.grids.clear();
         return this.asPromise(true);
     }
