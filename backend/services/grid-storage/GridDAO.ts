@@ -18,7 +18,7 @@ interface GridCRUDRepository {
     listGrids() : Promise<Array<GridDAO>>;
     createGrid(grid : GridDAO) : Promise< boolean>;
     deleteGridByName(name : string) : Promise<boolean>;
-    deleteAll() : Promise<Boolean>
+    deleteAll() : Promise<boolean>
 
 }
 
@@ -58,7 +58,7 @@ class MongoGridCRUDRepository implements GridCRUDRepository {
         return res.acknowledged && (res.deletedCount === 1);
     }
 
-    async deleteAll() : Promise<Boolean> {
+    async deleteAll() : Promise<boolean> {
         return (await this.getCollection().deleteMany({})).acknowledged;
     }
 }

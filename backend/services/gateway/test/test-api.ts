@@ -1,13 +1,19 @@
-import chai, { assert } from 'chai'
+import chai from 'chai'
 import chai_as_promised from 'chai-as-promised';
 import chaiHttp from 'chai-http';
 const expect = chai.expect;
 chai.use(chai_as_promised);
 chai.use(chaiHttp);
 let should = chai.should();
+import {GridDAO, GridCRUDRepository} from '../../grid-storage/GridDAO';
+import {Gateway} from '../gateway';
+import {testGrid, getMockAsPromise} from '../../grid-storage/test/common';
+const gw : Gateway = new Gateway(getMockAsPromise());
+const app = gw.app;
+async function clear() {
+    return (await gw.repositoryAccess).deleteAll();
+}
 
-import {app} from '../service';
-import {clear, testGrid} from './test-database';
 describe("GET /grid", function() {
     beforeEach(async function() {
         return clear();

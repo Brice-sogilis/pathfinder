@@ -1,0 +1,30 @@
+syntax = "proto3";
+package grid;
+message Grid {
+    string name = 1;
+    repeated string lines = 2;
+    int32 height = 3;
+    int32 width = 4;
+}
+message CreateGridRequest {
+    Grid grid = 1;
+}
+message GetGridByNameRequest {
+    string name = 1;
+}
+message BooleanResponse {
+    bool ok = 1;
+}
+message GetAllGridsRequest {}
+message DeleteAllGridsRequest {}
+message DeleteGridByNameRequest {
+    string name = 1;
+}
+
+service GridStore {
+    rpc createGrid(CreateGridRequest) returns (BooleanResponse) {};
+    rpc getGridByName(GetGridByNameRequest) returns (Grid) {};
+    rpc getAllGrids(GetAllGridsRequest) returns (stream Grid) {};
+    rpc deleteGridByName(DeleteGridByNameRequest) returns (BooleanResponse) {};
+    rpc deleteAllGrids(DeleteAllGridsRequest) returns (BooleanResponse) {};
+}
