@@ -27,5 +27,17 @@ jobs:
         run: |
           docker rm -f grid
           docker compose --file backend/services/compose/compose-stack-test.yml down
+  grid-gateway-npm-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use NodeJS
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14.x
+      - name: Install
+        run: cd backend/services/grid-storage && npm ci      
+      - name: Run tests
+        run: cd backend/services/grid-storage && npm test
 
         
