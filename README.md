@@ -5,10 +5,12 @@
     - **/gateway** a node server acting a a reverse proxy from http front request to gRPC servers
     - **/grpc** grpc hello-world (TO BE REMOVED SOON)
     - **/compose** docker compose stacks to debug locally, run ci tests or deploy the service along with it's related mongo database
+
 # Build docker images
 On windows (cmd): ```build_images.ps1```
 On windows (powershell): ```build_images.cmd```
 On linux : ```bash build_images.sh```
+
 # Demonstration : Run the frontend/backend/db stack locally
 +   Deploy : 
     ```
