@@ -1,0 +1,10 @@
+FROM node:alpine as builder
+WORKDIR /home
+ADD . .
+RUN cd gateway && npm ci && npm run compile
+
+FROM node:alpine as runner
+WORKDIR /home
+COPY --from=builder /home/gateway/build/ /home/build/
+COPY --from=builder /home/gateway/node_modules/ /home/node_modules/
+ENTRYPOINT ["node", "build/gateway/main.js"]

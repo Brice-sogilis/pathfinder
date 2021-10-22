@@ -1,7 +1,7 @@
 import express, { Application } from 'express';
 import cors from 'cors';
 import {GridStoreClient} from "../grid-storage/pb/grid_grpc_pb"
-import {GridCRUDRepository} from "../grid-storage/GridDAO"
+import {GridCRUDRepository, GridDAO} from "../grid-storage/GridDAO"
 class Gateway {
     app: Application
     repositoryAccess: Promise<GridCRUDRepository>

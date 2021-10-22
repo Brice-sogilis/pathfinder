@@ -13,6 +13,17 @@ function sendPing(call : ServerUnaryCall<Ping, Pong>, callback: (err: ServerErro
     callback(null, response);
 }
 
-var server = new Server();
-server.addService(PongServiceService, {sendPing: sendPing});
-server.bindAsync('0.0.0.0:8888', ServerCredentials.createInsecure(), () => {server.start();})
+class PongServer {
+    server = new Server();
+    constructor() {
+        this.server.addService(PongServiceService, {sendPing: sendPing});
+        
+    }
+    listen(port : number, callback :() => void) {
+        this.server.bindAsync('0.0.0.0:'+port, ServerCredentials.createInsecure(), () => {this.server.start(); callback();})
+    }
+
+}
+export {PongServer}
+const server = new PongServer();
+//server.listen(8888, () => {console.log("Server started")});

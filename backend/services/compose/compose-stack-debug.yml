@@ -13,7 +13,7 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
-  server:
+  server-grpc:
     image: service:grid
     restart: always
     networks:
@@ -23,6 +23,13 @@ services:
     environment:
       DB_HOSTNAME: mongo
       DB_PORT: 27017
+  server-gateway:
+    image: service:gateway
+    restart: always
+    networks:
+      test_network
+    ports:
+      - 8888:8888
 
   mongo-console:
     image: mongo-express

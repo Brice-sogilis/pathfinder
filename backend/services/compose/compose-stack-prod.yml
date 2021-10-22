@@ -23,6 +23,13 @@ services:
     environment:
       DB_HOSTNAME: mongo
       DB_PORT: 27017
+  server-gateway:
+    image: service:gateway
+    restart: always
+    networks:
+      - grid_network
+    ports:
+      8888:8888
 
 networks:
   grid_network:
