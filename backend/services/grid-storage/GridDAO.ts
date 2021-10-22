@@ -1,48 +1,52 @@
-import  {Collection, MongoClient} from 'mongodb'
+import {Collection, MongoClient} from 'mongodb'
 
 class GridDAO {
     name: string;
     lines: Array<string>;
     height: number;
-    width : number;
-    constructor(name : string, lines: Array<string>) {
+    width: number;
+
+    constructor(name: string, lines: Array<string>) {
         this.name = name;
         this.lines = lines;
         this.height = lines.length;
-        this.width = (this.height > 0)?lines[0].length:0
+        this.width = (this.height > 0) ? lines[0].length : 0
     }
 }
 
 interface GridCRUDRepository {
-    getGridByName(name : string) : Promise<GridDAO | null>;
-    listGrids() : Promise<Array<GridDAO>>;
-    createGrid(grid : GridDAO) : Promise< boolean>;
-    deleteGridByName(name : string) : Promise<boolean>;
-    deleteAll() : Promise<boolean>
+    getGridByName(name: string): Promise<GridDAO | null>;
+
+    listGrids(): Promise<Array<GridDAO>>;
+
+    createGrid(grid: GridDAO): Promise<boolean>;
+
+    deleteGridByName(name: string): Promise<boolean>;
+
+    deleteAll(): Promise<boolean>
 
 }
 
 class MongoGridCRUDRepository implements GridCRUDRepository {
-    client : MongoClient
+    client: MongoClient
     dbName = "grid-storage";
     collectionName = "grids";
 
-    constructor(client : MongoClient) {
+    constructor(client: MongoClient) {
         this.client = client;
     }
 
-    getCollection() : Collection<GridDAO> {
+    getCollection(): Collection<GridDAO> {
         return this.client.db(this.dbName).collection(this.collectionName);
     }
 
     async getGridByName(name: string): Promise<GridDAO | null> {
-        const res = await this.getCollection().findOne({name:name});
-        return res;
+        return await this.getCollection().findOne({name: name});
     }
 
     async listGrids(): Promise<GridDAO[]> {
-        const res :Array<GridDAO> = [];
-        await this.getCollection().find({}).forEach(function(g) {
+        const res: Array<GridDAO> = [];
+        await this.getCollection().find({}).forEach(function (g) {
             res.push(g);
         });
         return res;
@@ -54,11 +58,11 @@ class MongoGridCRUDRepository implements GridCRUDRepository {
     }
 
     async deleteGridByName(name: string): Promise<boolean> {
-        const res = await this.getCollection().deleteOne({name:name});
+        const res = await this.getCollection().deleteOne({name: name});
         return res.acknowledged && (res.deletedCount === 1);
     }
 
-    async deleteAll() : Promise<boolean> {
+    async deleteAll(): Promise<boolean> {
         return (await this.getCollection().deleteMany({})).acknowledged;
     }
 }

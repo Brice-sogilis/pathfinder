@@ -27,7 +27,7 @@ services:
     image: service:gateway
     restart: always
     networks:
-      test_network
+      - test_network
     ports:
       - 8888:8888
 
