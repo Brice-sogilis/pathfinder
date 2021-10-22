@@ -26,6 +26,50 @@ function deserialize_grid_CreateGridRequest(buffer_arg) {
   return pb_grid_pb.CreateGridRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_grid_DeleteAllGridsRequest(arg) {
+  if (!(arg instanceof pb_grid_pb.DeleteAllGridsRequest)) {
+    throw new Error('Expected argument of type grid.DeleteAllGridsRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_grid_DeleteAllGridsRequest(buffer_arg) {
+  return pb_grid_pb.DeleteAllGridsRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_grid_DeleteGridByNameRequest(arg) {
+  if (!(arg instanceof pb_grid_pb.DeleteGridByNameRequest)) {
+    throw new Error('Expected argument of type grid.DeleteGridByNameRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_grid_DeleteGridByNameRequest(buffer_arg) {
+  return pb_grid_pb.DeleteGridByNameRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_grid_GetAllGridsRequest(arg) {
+  if (!(arg instanceof pb_grid_pb.GetAllGridsRequest)) {
+    throw new Error('Expected argument of type grid.GetAllGridsRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_grid_GetAllGridsRequest(buffer_arg) {
+  return pb_grid_pb.GetAllGridsRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_grid_GetGridByNameRequest(arg) {
+  if (!(arg instanceof pb_grid_pb.GetGridByNameRequest)) {
+    throw new Error('Expected argument of type grid.GetGridByNameRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_grid_GetGridByNameRequest(buffer_arg) {
+  return pb_grid_pb.GetGridByNameRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_grid_Grid(arg) {
   if (!(arg instanceof pb_grid_pb.Grid)) {
     throw new Error('Expected argument of type grid.Grid');
@@ -35,39 +79,6 @@ function serialize_grid_Grid(arg) {
 
 function deserialize_grid_Grid(buffer_arg) {
   return pb_grid_pb.Grid.deserializeBinary(new Uint8Array(buffer_arg));
-}
-
-function serialize_grid_deleteAllGridsRequest(arg) {
-  if (!(arg instanceof pb_grid_pb.deleteAllGridsRequest)) {
-    throw new Error('Expected argument of type grid.deleteAllGridsRequest');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_grid_deleteAllGridsRequest(buffer_arg) {
-  return pb_grid_pb.deleteAllGridsRequest.deserializeBinary(new Uint8Array(buffer_arg));
-}
-
-function serialize_grid_getAllGridsRequest(arg) {
-  if (!(arg instanceof pb_grid_pb.getAllGridsRequest)) {
-    throw new Error('Expected argument of type grid.getAllGridsRequest');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_grid_getAllGridsRequest(buffer_arg) {
-  return pb_grid_pb.getAllGridsRequest.deserializeBinary(new Uint8Array(buffer_arg));
-}
-
-function serialize_grid_getGridByNameRequest(arg) {
-  if (!(arg instanceof pb_grid_pb.getGridByNameRequest)) {
-    throw new Error('Expected argument of type grid.getGridByNameRequest');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_grid_getGridByNameRequest(buffer_arg) {
-  return pb_grid_pb.getGridByNameRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
 
@@ -87,10 +98,10 @@ var GridStoreService = exports.GridStoreService = {
     path: '/grid.GridStore/getGridByName',
     requestStream: false,
     responseStream: false,
-    requestType: pb_grid_pb.getGridByNameRequest,
+    requestType: pb_grid_pb.GetGridByNameRequest,
     responseType: pb_grid_pb.Grid,
-    requestSerialize: serialize_grid_getGridByNameRequest,
-    requestDeserialize: deserialize_grid_getGridByNameRequest,
+    requestSerialize: serialize_grid_GetGridByNameRequest,
+    requestDeserialize: deserialize_grid_GetGridByNameRequest,
     responseSerialize: serialize_grid_Grid,
     responseDeserialize: deserialize_grid_Grid,
   },
@@ -98,21 +109,32 @@ var GridStoreService = exports.GridStoreService = {
     path: '/grid.GridStore/getAllGrids',
     requestStream: false,
     responseStream: true,
-    requestType: pb_grid_pb.getAllGridsRequest,
+    requestType: pb_grid_pb.GetAllGridsRequest,
     responseType: pb_grid_pb.Grid,
-    requestSerialize: serialize_grid_getAllGridsRequest,
-    requestDeserialize: deserialize_grid_getAllGridsRequest,
+    requestSerialize: serialize_grid_GetAllGridsRequest,
+    requestDeserialize: deserialize_grid_GetAllGridsRequest,
     responseSerialize: serialize_grid_Grid,
     responseDeserialize: deserialize_grid_Grid,
+  },
+  deleteGridByName: {
+    path: '/grid.GridStore/deleteGridByName',
+    requestStream: false,
+    responseStream: false,
+    requestType: pb_grid_pb.DeleteGridByNameRequest,
+    responseType: pb_grid_pb.BooleanResponse,
+    requestSerialize: serialize_grid_DeleteGridByNameRequest,
+    requestDeserialize: deserialize_grid_DeleteGridByNameRequest,
+    responseSerialize: serialize_grid_BooleanResponse,
+    responseDeserialize: deserialize_grid_BooleanResponse,
   },
   deleteAllGrids: {
     path: '/grid.GridStore/deleteAllGrids',
     requestStream: false,
     responseStream: false,
-    requestType: pb_grid_pb.deleteAllGridsRequest,
+    requestType: pb_grid_pb.DeleteAllGridsRequest,
     responseType: pb_grid_pb.BooleanResponse,
-    requestSerialize: serialize_grid_deleteAllGridsRequest,
-    requestDeserialize: deserialize_grid_deleteAllGridsRequest,
+    requestSerialize: serialize_grid_DeleteAllGridsRequest,
+    requestDeserialize: deserialize_grid_DeleteAllGridsRequest,
     responseSerialize: serialize_grid_BooleanResponse,
     responseDeserialize: deserialize_grid_BooleanResponse,
   },

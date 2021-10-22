@@ -17,9 +17,9 @@ class MockGridCRUDRepository implements GridCRUDRepository {
 
     listGrids(): Promise<GridDAO[]> {
         var res : Array<GridDAO> = [];
-        for(var i in this.grids.keys) {
-            res.push(this.grids.get(i)!);
-        }
+        this.grids.forEach((val, key) => {
+            res.push(val);
+        });
         return this.asPromise(res);
     }
 

@@ -4,8 +4,9 @@ import * as messages from "../pb/grid_pb";
 import * as services from "../pb/grid_grpc_pb";
 import * as grpc from "@grpc/grpc-js";
 import {testGrid, MockGridCRUDRepository, getMockAsPromise} from './common';
-import { GridStoreServiceImpl } from '../service';
+import { GridStoreServiceImpl, gridDAOasRPC, gridRPCasDAO} from '../service';
 import { describe } from 'mocha';
+import { GridDAO } from '../GridDAO';
 const expect = chai.expect;
 chai.use(chai_as_promised);
 let should = chai.should();
@@ -20,7 +21,7 @@ function clear(callback : () => void) {
 }
 
 function createGridByNameRequest(name : string) {
-    var res = new messages.getGridByNameRequest();
+    var res = new messages.GetGridByNameRequest();
     res.setName(name);
     return res;
 }
@@ -59,7 +60,7 @@ describe('GRPC GetGrid Operations', function() {
     });
 
     it('Should retrieve an empty list without initial data', function(done) {
-        var stream = client.getAllGrids(new messages.getAllGridsRequest());
+        var stream = client.getAllGrids(new messages.GetAllGridsRequest());
         var arr : Array<messages.Grid> = [];
         stream.on('data', function(grid) {
             arr.push(grid);
@@ -71,7 +72,7 @@ describe('GRPC GetGrid Operations', function() {
     });
 
     it('Should fail when getting a non existing name', function(done) {
-        var req = new messages.getGridByNameRequest();
+        var req = new messages.GetGridByNameRequest();
         req.setName("Unknown_Test_Name");
         client.getGridByName(req, (err, data) => {
             if(err){
@@ -101,6 +102,29 @@ describe('GRPC GetGrid Operations', function() {
             });
         });
     });
+
+    it('Should return a list containing all the grids regitered in the repository', function(done) {
+        var testGridAltered = new GridDAO(testGrid.name+"Bis", testGrid.lines);
+        server.repositoryAccess.then(repo => {
+            repo.createGrid(testGrid).then(b => repo.createGrid(testGridAltered).then(bool => {
+                var req = new messages.GetAllGridsRequest();
+                var gridStream = client.getAllGrids(req);    
+                var gridArray : Array<GridDAO> = []; 
+                console.log("Setting event hooks");
+                gridStream.on('data', (grid: messages.Grid) => {
+                    console.log("Receiving item");
+                    gridArray.push(gridRPCasDAO(grid));
+                });
+                gridStream.on('end', () => {
+                    console.log("End of call");
+                    expect(gridArray.length).to.be.greaterThan(0);
+                    expect(gridArray.length).to.be.eql(2);
+                    console.log("Clearing");
+                    repo.deleteAll().then(_ => {console.log("Cleared");done();});
+                });
+            }));
+        });
+    })
 });
 
 describe('GRPC CreateGrid operations', function() {
@@ -155,7 +179,7 @@ describe('GRPC CreateGrid operations', function() {
             }
             else{
                 expect(res?.getOk()).to.be.true;
-                var getReq = new messages.getGridByNameRequest();
+                var getReq = new messages.GetGridByNameRequest();
                 getReq.setName(grid.getName());
                 client.getGridByName(getReq, (error, result) => {
                     if(error){
