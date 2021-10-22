@@ -10,11 +10,11 @@ const expect = chai.expect;
 chai.use(chai_as_promised);
 let should = chai.should();
 const server = new GridStoreServiceImpl(getMockAsPromise());
-server.listen(9999);
-function clear(done : () => void) {
+
+function clear(callback : () => void) {
     server.repositoryAccess.then(repo => {
         repo.deleteAll().then(b => {
-            done();
+            callback();
         });
     });
 }
@@ -26,14 +26,14 @@ function createGridByNameRequest(name : string) {
 }
 
 describe('Connection to GRPC server', function() {
-    /*
-    this.beforeAll(function() {
-        server.listen(9999);
+    
+    this.beforeAll(function(done) {
+        server.listen(9999, done);
     });
     this.afterAll(function(done) {
-        server.close(done)
+        server.close(done);
     });
-    */
+    
     it('Should create a client without error', function() {
         var client: services.GridStoreClient = new services.GridStoreClient(
             "localhost:9999",
@@ -47,12 +47,14 @@ describe('GRPC GetGrid Operations', function() {
         "localhost:9999",
         grpc.credentials.createInsecure()
       );
+
     this.beforeAll(function(done) {
-        //server.listen(9999);
-        clear(done);
+        server.listen(9999, () => clear(done));
     });
+    
     this.afterAll(function(done) {
         client.close();
+        server.forceClose();
         clear(done);
     });
 
@@ -68,7 +70,7 @@ describe('GRPC GetGrid Operations', function() {
         })
     });
 
-    it('Should fail when gettting a non existing name', function(done) {
+    it('Should fail when getting a non existing name', function(done) {
         var req = new messages.getGridByNameRequest();
         req.setName("Unknown_Test_Name");
         client.getGridByName(req, (err, data) => {
@@ -106,24 +108,28 @@ describe('GRPC CreateGrid operations', function() {
         "localhost:9999",
         grpc.credentials.createInsecure()
       );
+
     this.beforeAll(function(done) {
-        //server.listen(9999);
-        clear(done);
+        server.listen(9999, () => clear(done));
     });
+
     this.afterAll(function(done) {
         client.close();
+        server.forceClose();
         clear(done);
     });
+
     it('Setup', function(done) {
         done();
     });
-    it('Should suceed to create a grid', function(done) {
-        var req = new messages.CreateGridRequest();
+
+    it('Should succeed to create a grid', function(done) {
         var grid = new messages.Grid();
         grid.setName(testGrid.name);
         grid.setLinesList(testGrid.lines);
         grid.setHeight(testGrid.height);
         grid.setWidth(testGrid.width);
+        var req = new messages.CreateGridRequest();
         req.setGrid(grid);
         client.createGrid(req, (err, res) => {
             if(err){
@@ -132,8 +138,9 @@ describe('GRPC CreateGrid operations', function() {
             else{
                 done();
             }
-        })
-    })
+        });
+    });
+
     it('Should create an identical grid to the argument', function(done) {
         var req = new messages.CreateGridRequest();
         var grid = new messages.Grid();
@@ -150,13 +157,13 @@ describe('GRPC CreateGrid operations', function() {
                 expect(res?.getOk()).to.be.true;
                 var getReq = new messages.getGridByNameRequest();
                 getReq.setName(grid.getName());
-                client.getGridByName(getReq, (e, r) => {
-                    if(e){
-                        done(e);
+                client.getGridByName(getReq, (error, result) => {
+                    if(error){
+                        done(error);
                     }
                     else{
-                        expect(r?.getName()).to.be.eql(grid.getName());
-                        expect(r?.getHeight()).to.be.eql(testGrid.height);
+                        expect(result?.getName()).to.be.eql(grid.getName());
+                        expect(result?.getHeight()).to.be.eql(testGrid.height);
                         done();
                     }
                 });

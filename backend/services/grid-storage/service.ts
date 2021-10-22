@@ -71,9 +71,9 @@ class GridStoreServiceImpl {
     repositoryAccess: Promise<GridCRUDRepository>;
     methodMapping = {
         getAllGrids: (c: grpc.ServerWritableStream<messages.getAllGridsRequest, messages.Grid>) => {this.getAllGrids(c)},
-        getGridByName: (c: grpc.ServerUnaryCall<messages.getGridByNameRequest, messages.Grid>, cb : (e : grpc.ServerErrorResponse | null, r : messages.Grid) => void) => {this.getGridByName(c,cb)},
+        getGridByName: (c: grpc.ServerUnaryCall<messages.getGridByNameRequest, messages.Grid>, cb : (e : grpc.ServerErrorResponse | null, r : messages.Grid | null) => void) => {this.getGridByName(c,cb)},
         deleteAllGrids: (c: grpc.ServerUnaryCall<messages.deleteAllGridsRequest, messages.BooleanResponse>, cb : (e: grpc.ServerErrorResponse, r: messages.BooleanResponse) => void) => {this.deleteAllGrids(c, cb)},
-        createGrid: (c: grpc.ServerUnaryCall<messages.Grid, messages.BooleanResponse>, cb: (e : grpc.ServerErrorResponse | null, r: messages.BooleanResponse) => void) => {this.createGrid(c, cb)},
+        createGrid: (c: grpc.ServerUnaryCall<messages.CreateGridRequest, messages.BooleanResponse>, cb: (e : grpc.ServerErrorResponse | null, r: messages.BooleanResponse) => void) => {this.createGrid(c, cb)},
     }
     constructor(repositoryAccess: Promise<GridCRUDRepository>) {
         this.repositoryAccess = repositoryAccess;
@@ -98,17 +98,21 @@ class GridStoreServiceImpl {
         this.server.addService(services.GridStoreService, this.methodMapping);
     }
 
-    listen(port: number) {
+    listen(port: number, callback : () => void) {
         this.server.bindAsync("0.0.0.0:"+port, grpc.ServerCredentials.createInsecure(), () => {
             this.server.start();
+            callback();
           });
     }
+
     forceClose() {
         this.server.forceShutdown();
     }
-    close(callback: () => void) {
+
+    close(callback: (error?: Error | undefined) => void) {
         this.server.tryShutdown(callback);
     }
+
     getAllGrids(
         call : grpc.ServerWritableStream<messages.getAllGridsRequest, messages.Grid>) {
             call.end();
@@ -116,11 +120,17 @@ class GridStoreServiceImpl {
     
     getGridByName(
         call : grpc.ServerUnaryCall<messages.getGridByNameRequest, messages.Grid>,
-        callback : (err : grpc.ServerErrorResponse | null, res : messages.Grid) => void) {
+        callback : (err : grpc.ServerErrorResponse | null, res : messages.Grid | null) => void) {
             this.repositoryAccess.then(repo => {
                 repo.getGridByName(call.request.getName()).then(dao => {
-                    var grid = this.asRPC(dao!);
-                    callback(null, grid);
+                    if(dao !== null){
+                        var grid = this.asRPC(dao!);
+                        callback(null, grid);
+                    }
+                    else{
+                        callback(new Error("Not Found"), null);
+                    }
+
                 });
             })
     }
@@ -132,9 +142,10 @@ class GridStoreServiceImpl {
     }
     
     createGrid(
-        call : grpc.ServerUnaryCall<messages.Grid, messages.BooleanResponse>,
+        call : grpc.ServerUnaryCall<messages.CreateGridRequest, messages.BooleanResponse>,
         callback : (err : grpc.ServerErrorResponse | null, res : messages.BooleanResponse) => void) {
-            const dao : GridDAO = new GridDAO(call.request.getName(), call.request.getLinesList());
+            const dao : GridDAO = new GridDAO(call.request.getGrid()!.getName(), call.request.getGrid()!.getLinesList());
+            console.log("Built DAO from gRPC request");
             this.repositoryAccess.then(repo => {
                 repo.createGrid(dao).then(b => {
                     var res = new messages.BooleanResponse();
