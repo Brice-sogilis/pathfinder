@@ -4,9 +4,10 @@ import * as messages from "../pb/grid_pb";
 import * as services from "../pb/grid_grpc_pb";
 import * as grpc from "@grpc/grpc-js";
 import {testGrid, MockGridCRUDRepository, getMockAsPromise} from './common';
-import { GridStoreServiceImpl, gridDAOasRPC, gridRPCasDAO} from '../service';
+import { listEmptyGridsWithoutError, retrievesACorrectGridAfterCreation, deletesGridAfterCreation, createAGridWithoutError } from './test-database';
+import { GridStoreServiceImpl, gridDAOasRPC, gridRPCasDAO, GridRepositoryRPCWrapper} from '../service';
 import { describe } from 'mocha';
-import { GridDAO } from '../GridDAO';
+import { GridCRUDRepository, GridDAO } from '../GridDAO';
 const expect = chai.expect;
 chai.use(chai_as_promised);
 let should = chai.should();
@@ -110,17 +111,13 @@ describe('GRPC GetGrid Operations', function() {
                 var req = new messages.GetAllGridsRequest();
                 var gridStream = client.getAllGrids(req);    
                 var gridArray : Array<GridDAO> = []; 
-                console.log("Setting event hooks");
                 gridStream.on('data', (grid: messages.Grid) => {
-                    console.log("Receiving item");
                     gridArray.push(gridRPCasDAO(grid));
                 });
                 gridStream.on('end', () => {
-                    console.log("End of call");
                     expect(gridArray.length).to.be.greaterThan(0);
                     expect(gridArray.length).to.be.eql(2);
-                    console.log("Clearing");
-                    repo.deleteAll().then(_ => {console.log("Cleared");done();});
+                    repo.deleteAll().then(_ => {done();});
                 });
             }));
         });
@@ -194,4 +191,47 @@ describe('GRPC CreateGrid operations', function() {
             }
         });
     });
+});
+
+describe('CRUD GRPC Wrapper', function() {
+    var client: services.GridStoreClient = new services.GridStoreClient(
+        "localhost:9999",
+        grpc.credentials.createInsecure()
+    );
+    var noop = () => {};
+
+    var repo = new GridRepositoryRPCWrapper(client);
+
+    this.beforeAll(function(done) {
+        server.listen(9999, () => clear(done));
+    });
+
+    beforeEach(function(done) {
+        return clear(done);
+    });
+
+    afterEach(function(done) {
+        return clear(done);
+    });
+
+    this.afterAll(function(done) {
+        server.forceClose();
+        clear(done);
+    });
+    it('Lists empty grids without error', function () {
+        return createAGridWithoutError(repo, noop)
+    });
+
+    it('Creates a grid without error', function() {
+        return createAGridWithoutError(repo, noop);
+    });
+    
+    it('Retrieves a correct grid after creation', function () {
+        return retrievesACorrectGridAfterCreation(repo, noop);
+    });
+
+    it('Deletes a grid after creation', function() {
+        return deletesGridAfterCreation(repo, noop);
+    });
+
 });

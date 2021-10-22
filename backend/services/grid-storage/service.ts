@@ -127,6 +127,7 @@ class GridRepositoryRPCWrapper implements GridCRUDRepository {
     constructor(client : GridStoreClient) {
         this.client = client;
     }
+
     getGridByName(name: string): Promise<GridDAO | null> {
         return new Promise((resolve, reject) => {
             var req = new messages.GetGridByNameRequest();
@@ -141,19 +142,65 @@ class GridRepositoryRPCWrapper implements GridCRUDRepository {
             });
         });
     }
-    
+
     listGrids(): Promise<GridDAO[]> {
-        throw new Error('Method not implemented.');
+        return new Promise((resolve, reject) => {
+            var req = new messages.GetAllGridsRequest();
+            var gridStream = this.client.getAllGrids(req);
+            var gridArray: Array<GridDAO> = [];
+            gridStream.on('data', (g: messages.Grid) => {
+                gridArray.push(gridRPCasDAO(g));
+            });
+            gridStream.on('end', () => {
+                resolve(gridArray);
+            });
+        });
     }
+
     createGrid(grid: GridDAO): Promise<boolean> {
-        throw new Error('Method not implemented.');
+        return new Promise((resolve, reject) => {
+            var req = new messages.CreateGridRequest();
+            var gridRPC = gridDAOasRPC(grid);
+            req.setGrid(gridRPC);
+            this.client.createGrid(req, (err, bool) => {
+                if(err){
+                    reject(err);
+                }
+                else{
+                    resolve(bool?.getOk()!);
+                }
+            });
+        });
     }
+
     deleteGridByName(name: string): Promise<boolean> {
-        throw new Error('Method not implemented.');
+        return new Promise((resolve, reject) => {
+            var req = new messages.DeleteGridByNameRequest();
+            req.setName(name);
+            this.client.deleteGridByName(req, (err, bool) => {
+                if(err){
+                    reject(err);
+                }
+                else{
+                    resolve(bool?.getOk()!);
+                }
+            });
+        });
     }
+
     deleteAll(): Promise<boolean> {
-        throw new Error('Method not implemented.');
+        return new Promise((resolve, reject) => {
+            var req = new messages.DeleteAllGridsRequest();
+            this.client.deleteAllGrids(req, (err, bool) => {
+                if(err){
+                    reject(err);
+                }
+                else{
+                    resolve(bool?.getOk()!);
+                }
+            });
+        });
     }
 }
 
-export {GridStoreServiceImpl, gridRPCasDAO, gridDAOasRPC}
+export {GridStoreServiceImpl, gridRPCasDAO, gridDAOasRPC, GridRepositoryRPCWrapper}

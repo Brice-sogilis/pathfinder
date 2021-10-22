@@ -11,7 +11,7 @@
     "clean": "rm -f pb/*.js && rm -f pb/*.ts && rm -rf build",
     "clean-win": "del pb\\*.ts && del pb\\*.js && rmdir /q /s build",
     "compile": "tsc && mkdir build/pb && cp pb/*.*s build/pb/",
-    "compile-win": "tsc && xcopy pb\\*.ts build\\pb\\ && xcopy pb\\*.js build\\pb\\",
+    "compile-win": "tsc && xcopy /y pb\\*.*s build\\pb\\",
     "protoc": "grpc_tools_node_protoc --plugin=protoc-gen-ts=./node_modules/.bin/protoc-gen-ts --js_out=import_style=commonjs,binary:./ --ts_out=\"service=grpc-node,mode=grpc-js:./\" --grpc_out=grpc_js:./ ./pb/grid.proto",
     "protoc-win": "grpc_tools_node_protoc --plugin=protoc-gen-ts=.\\node_modules\\.bin\\protoc-gen-ts.cmd --js_out=import_style=commonjs,binary:./ --ts_out=\"service=grpc-node,mode=grpc-js:./\" --grpc_out=grpc_js:./ ./pb/grid.proto",
     "lint": "eslint service.ts"

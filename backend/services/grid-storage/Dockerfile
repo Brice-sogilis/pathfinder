@@ -9,4 +9,4 @@ FROM node:alpine as runner
 WORKDIR /home
 COPY --from=builder /home/build/ ./build/
 COPY --from=builder /home/node_modules/ ./node_modules/
-ENTRYPOINT ["node", "build/service.js"]
+ENTRYPOINT ["node", "build/main.js"]

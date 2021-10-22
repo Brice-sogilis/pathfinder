@@ -19,7 +19,7 @@ services:
     networks:
       - test_network
     ports:
-      - 8888:8888
+      - 9999:9999
     environment:
       DB_HOSTNAME: mongo
       DB_PORT: 27017
