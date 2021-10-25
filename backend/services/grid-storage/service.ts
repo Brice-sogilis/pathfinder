@@ -151,7 +151,7 @@ class GridRepositoryRPCWrapper implements GridCRUDRepository {
     }
 
     listGrids(): Promise<GridDAO[]> {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve, _reject) => {
             const req = new messages.GetAllGridsRequest();
             const gridStream = this.client.getAllGrids(req);
             const gridArray: Array<GridDAO> = [];

@@ -27,7 +27,14 @@ function createGridByNameRequest(name: string) {
     return res;
 }
 
-describe('Connection to GRPC server', function () {
+function getLocalClient(port : number) : services.GridStoreClient {
+    return new services.GridStoreClient(
+        `localhost:${port}`,
+        grpc.credentials.createInsecure()
+    );
+}
+
+describe('Connection to GRPC server => Failure of these tests may indicate a wrong configuration, check that the local host accept internal communication to port 9999', function () {
     this.beforeAll(function (done) {
         server.listen(9999, done);
     });
@@ -36,18 +43,13 @@ describe('Connection to GRPC server', function () {
     });
 
     it('Should create a client without error', function () {
-        const client: services.GridStoreClient = new services.GridStoreClient(
-            "localhost:9999",
-            grpc.credentials.createInsecure()
-        );
+        const client = getLocalClient(9999);
+        client.close();
     });
 });
 
 describe('GRPC GetGrid Operations', function () {
-    const client: services.GridStoreClient = new services.GridStoreClient(
-        "localhost:9999",
-        grpc.credentials.createInsecure()
-    );
+    const client: services.GridStoreClient = getLocalClient(9999);
 
     this.beforeAll(function (done) {
         server.listen(9999, () => clear(done));
@@ -124,10 +126,7 @@ describe('GRPC GetGrid Operations', function () {
 });
 
 describe('GRPC CreateGrid operations', function () {
-    const client: services.GridStoreClient = new services.GridStoreClient(
-        "localhost:9999",
-        grpc.credentials.createInsecure()
-    );
+    const client: services.GridStoreClient = getLocalClient(9999);
 
     this.beforeAll(function (done) {
         server.listen(9999, () => clear(done));
@@ -190,10 +189,7 @@ describe('GRPC CreateGrid operations', function () {
 });
 
 describe('CRUD GRPC Wrapper', function () {
-    const client: services.GridStoreClient = new services.GridStoreClient(
-        "localhost:9999",
-        grpc.credentials.createInsecure()
-    );
+    const client: services.GridStoreClient = getLocalClient(9999);
     const noop = () => {
     };
 

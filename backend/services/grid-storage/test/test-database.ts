@@ -1,6 +1,6 @@
 import chai, {assert} from 'chai'
 import chai_as_promised from 'chai-as-promised';
-import {connectGridDatabase, MongoGridCRUDRepository} from '../mongo-utils';
+import {connectGridDatabase, MongoGridCRUDRepository} from '../mongo_access';
 import {GridCRUDRepository} from '../GridDAO'
 import {testGrid} from './common'
 
@@ -22,7 +22,7 @@ async function clear() {
     });
 }
 
-describe('Database connection check', () => {
+describe('Database connection check => Failure of these tests may indicate a bad configuration of the local mongoDB access, check DB_HOSTNAME_TEST and DB_PORT_TEST environment variables', () => {
     it('Connect to mongo DB without error', function (done) {
         connectGridDatabase(DB_HOSTNAME_TEST, DB_PORT_TEST).then((res) => {
             expect(res).to.not.be.null;
@@ -89,7 +89,7 @@ async function deletesGridAfterCreation(repo: GridCRUDRepository, callback: () =
     callback();
 }
 
-describe('Grid CRUD Repository with empty database', function () {
+describe('Local Mongo GridCRUDRepository implementation', function () {
     beforeEach(async function () {
         return clear();
     });
