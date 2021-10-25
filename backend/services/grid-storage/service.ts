@@ -5,7 +5,7 @@ import * as services from "./pb/grid_grpc_pb";
 import {GridStoreClient} from "./pb/grid_grpc_pb";
 
 function gridDAOasRPC(dao: GridDAO): messages.Grid {
-    var grid: messages.Grid = new messages.Grid();
+    const grid: messages.Grid = new messages.Grid();
     grid.setName(dao.name);
     grid.setLinesList(dao.lines);
     grid.setHeight(dao.height);
@@ -81,7 +81,7 @@ class GridStoreServiceImpl {
         this.repositoryAccess.then(repo => {
             repo.getGridByName(call.request.getName()).then(dao => {
                 if (dao !== null) {
-                    var grid = gridDAOasRPC(dao!);
+                    const grid = gridDAOasRPC(dao!);
                     callback(null, grid);
                 } else {
                     callback(new Error("Not Found"), null);
@@ -96,7 +96,7 @@ class GridStoreServiceImpl {
         callback: (err: grpc.ServerErrorResponse | null, res: messages.BooleanResponse) => void) {
         this.repositoryAccess.then(repo => {
             repo.deleteAll().then(b => {
-                var res = new messages.BooleanResponse();
+                const res = new messages.BooleanResponse();
                 res.setOk(b);
                 callback(null, res);
             });
@@ -108,7 +108,7 @@ class GridStoreServiceImpl {
         callback: (err: grpc.ServerErrorResponse | null, res: messages.BooleanResponse) => void) {
         this.repositoryAccess.then(repo => {
             repo.deleteGridByName(call.request.getName()).then(bool => {
-                var res = new messages.BooleanResponse();
+                const res = new messages.BooleanResponse();
                 res.setOk(bool);
                 callback(null, res);
             });
@@ -121,7 +121,7 @@ class GridStoreServiceImpl {
         const dao: GridDAO = new GridDAO(call.request.getGrid()!.getName(), call.request.getGrid()!.getLinesList());
         this.repositoryAccess.then(repo => {
             repo.createGrid(dao).then(b => {
-                var res = new messages.BooleanResponse();
+                const res = new messages.BooleanResponse();
                 res.setOk(b);
                 callback(null, res);
             });
@@ -138,7 +138,7 @@ class GridRepositoryRPCWrapper implements GridCRUDRepository {
 
     getGridByName(name: string): Promise<GridDAO | null> {
         return new Promise((resolve, reject) => {
-            var req = new messages.GetGridByNameRequest();
+            const req = new messages.GetGridByNameRequest();
             req.setName(name);
             this.client.getGridByName(req, (error, grid) => {
                 if (error) {
@@ -152,9 +152,9 @@ class GridRepositoryRPCWrapper implements GridCRUDRepository {
 
     listGrids(): Promise<GridDAO[]> {
         return new Promise((resolve, reject) => {
-            var req = new messages.GetAllGridsRequest();
-            var gridStream = this.client.getAllGrids(req);
-            var gridArray: Array<GridDAO> = [];
+            const req = new messages.GetAllGridsRequest();
+            const gridStream = this.client.getAllGrids(req);
+            const gridArray: Array<GridDAO> = [];
             gridStream.on('data', (g: messages.Grid) => {
                 gridArray.push(gridRPCasDAO(g));
             });
@@ -166,8 +166,8 @@ class GridRepositoryRPCWrapper implements GridCRUDRepository {
 
     createGrid(grid: GridDAO): Promise<boolean> {
         return new Promise((resolve, reject) => {
-            var req = new messages.CreateGridRequest();
-            var gridRPC = gridDAOasRPC(grid);
+            const req = new messages.CreateGridRequest();
+            const gridRPC = gridDAOasRPC(grid);
             req.setGrid(gridRPC);
             this.client.createGrid(req, (err, bool) => {
                 if (err) {
@@ -181,7 +181,7 @@ class GridRepositoryRPCWrapper implements GridCRUDRepository {
 
     deleteGridByName(name: string): Promise<boolean> {
         return new Promise((resolve, reject) => {
-            var req = new messages.DeleteGridByNameRequest();
+            const req = new messages.DeleteGridByNameRequest();
             req.setName(name);
             this.client.deleteGridByName(req, (err, bool) => {
                 if (err) {
@@ -195,7 +195,7 @@ class GridRepositoryRPCWrapper implements GridCRUDRepository {
 
     deleteAll(): Promise<boolean> {
         return new Promise((resolve, reject) => {
-            var req = new messages.DeleteAllGridsRequest();
+            const req = new messages.DeleteAllGridsRequest();
             this.client.deleteAllGrids(req, (err, bool) => {
                 if (err) {
                     reject(err);

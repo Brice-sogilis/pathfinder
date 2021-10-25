@@ -1,5 +1,3 @@
-import {Collection, MongoClient} from 'mongodb'
-
 class GridDAO {
     name: string;
     lines: Array<string>;
@@ -27,44 +25,4 @@ interface GridCRUDRepository {
 
 }
 
-class MongoGridCRUDRepository implements GridCRUDRepository {
-    client: MongoClient
-    dbName = "grid-storage";
-    collectionName = "grids";
-
-    constructor(client: MongoClient) {
-        this.client = client;
-    }
-
-    getCollection(): Collection<GridDAO> {
-        return this.client.db(this.dbName).collection(this.collectionName);
-    }
-
-    async getGridByName(name: string): Promise<GridDAO | null> {
-        return await this.getCollection().findOne({name: name});
-    }
-
-    async listGrids(): Promise<GridDAO[]> {
-        const res: Array<GridDAO> = [];
-        await this.getCollection().find({}).forEach(function (g) {
-            res.push(g);
-        });
-        return res;
-    }
-
-    async createGrid(grid: GridDAO): Promise<boolean> {
-        const res = await this.getCollection().insertOne(grid);
-        return res.acknowledged;
-    }
-
-    async deleteGridByName(name: string): Promise<boolean> {
-        const res = await this.getCollection().deleteOne({name: name});
-        return res.acknowledged && (res.deletedCount === 1);
-    }
-
-    async deleteAll(): Promise<boolean> {
-        return (await this.getCollection().deleteMany({})).acknowledged;
-    }
-}
-
-export {GridDAO, GridCRUDRepository, MongoGridCRUDRepository}
+export {GridDAO, GridCRUDRepository}

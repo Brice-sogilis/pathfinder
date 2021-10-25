@@ -1,7 +1,7 @@
 import chai, {assert} from 'chai'
 import chai_as_promised from 'chai-as-promised';
-import {connectGridDatabase} from '../mongo-utils';
-import {GridCRUDRepository, MongoGridCRUDRepository} from '../GridDAO'
+import {connectGridDatabase, MongoGridCRUDRepository} from '../mongo-utils';
+import {GridCRUDRepository} from '../GridDAO'
 import {testGrid} from './common'
 
 const expect = chai.expect;
