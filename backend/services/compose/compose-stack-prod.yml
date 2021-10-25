@@ -29,7 +29,7 @@ services:
     networks:
       - grid_network
     ports:
-      8888:8888
+      - 8888:8888
 
 networks:
   grid_network:
