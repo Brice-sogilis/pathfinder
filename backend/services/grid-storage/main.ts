@@ -1,4 +1,4 @@
-import {connectGridDatabase, MongoGridCRUDRepository} from './mongo-utils';
+import {connectGridDatabase, MongoGridCRUDRepository} from './mongo_access';
 import {GridStoreServiceImpl} from './service';
 
 let DB_HOSTNAME = process.env.DB_HOSTNAME

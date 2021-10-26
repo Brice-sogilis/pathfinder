@@ -1,6 +1,6 @@
 import chai, {assert} from 'chai'
 import chai_as_promised from 'chai-as-promised';
-import {connectGridDatabase, MongoGridCRUDRepository} from '../mongo-utils';
+import {connectGridDatabase, MongoGridCRUDRepository} from '../mongo_access';
 import {GridCRUDRepository} from '../GridDAO'
 import {testGrid} from './common'
 
@@ -11,18 +11,14 @@ chai.should();
 const DB_HOSTNAME_TEST: string = process.env.DB_HOSTNAME_TEST || '127.0.0.1'
 const DB_PORT_TEST: number = (process.env.DB_PORT_TEST) ? parseInt(process.env.DB_PORT_TEST) : 27017
 
-function TODO() {
-    assert.fail("TODO");
-}
-
-async function clear() {
+async function clearLocalMongoDB() {
     await connectGridDatabase(DB_HOSTNAME_TEST, DB_PORT_TEST).then(async function (clt) {
         const repo: GridCRUDRepository = new MongoGridCRUDRepository(clt);
         await repo.deleteAll();
     });
 }
 
-describe('Database connection check', () => {
+describe('Database connection check => Failure of these tests may indicate a bad configuration of the local mongoDB access, check DB_HOSTNAME_TEST and DB_PORT_TEST environment variables', () => {
     it('Connect to mongo DB without error', function (done) {
         connectGridDatabase(DB_HOSTNAME_TEST, DB_PORT_TEST).then((res) => {
             expect(res).to.not.be.null;
@@ -82,68 +78,78 @@ async function retrievesACorrectGridAfterCreation(repo: GridCRUDRepository, call
 }
 
 async function deletesGridAfterCreation(repo: GridCRUDRepository, callback: () => void) {
+    expect(await repo.listGrids()).to.be.empty;
     await repo.createGrid(testGrid);
     expect(await repo.listGrids()).not.to.be.empty;
     expect(await repo.deleteGridByName(testGrid.name)).to.be.true;
     expect(await repo.listGrids()).to.be.empty;
     callback();
 }
+async function pass() {
 
-describe('Grid CRUD Repository with empty database', function () {
-    beforeEach(async function () {
-        return clear();
-    });
+}
+function testGridCRUDOperations(testedImplementationName : string,
+                                repositoryAccess : () => Promise<GridCRUDRepository>,
+                                clearRepository : () => Promise<void>,
+                                setup : () => Promise<void> = pass,
+                                tearDown : () => Promise<void> = pass) {
+    describe(`[${testedImplementationName}] Grid CRUD Repository implementation`, function () {
+        this.beforeAll(function() {
+            return setup();
+        });
 
-    afterEach(async function () {
-        return clear();
-    });
+        this.afterAll(function() {
+            return tearDown();
+        })
+        beforeEach(function () {
+            return clearRepository();
+        });
 
-    it('Creates a grid without error', function (done) {
-        connectGridDatabase(DB_HOSTNAME_TEST, DB_PORT_TEST).then(async (clt) => {
-            const repo: GridCRUDRepository = new MongoGridCRUDRepository(clt);
-            await createAGridWithoutError(repo, () => {
-                clt.close();
-                done();
+        afterEach(function () {
+            return clearRepository();
+        });
+
+        it('CREATE a single grid', function (done) {
+            repositoryAccess().then(repo => {
+                createAGridWithoutError(repo, done);
             });
         });
-    });
 
-    it('Lists empty grids without error', function (done) {
-        connectGridDatabase(DB_HOSTNAME_TEST, DB_PORT_TEST).then(async (clt) => {
-            const repo: GridCRUDRepository = new MongoGridCRUDRepository(clt);
-            await listEmptyGridsWithoutError(repo, () => {
-                clt.close();
-                done();
+        it('GET an empty grid list', function (done) {
+            repositoryAccess().then(repo => {
+                listEmptyGridsWithoutError(repo, done);
             });
         });
-    });
 
-    it('Retrieves a correct grid after creation', function (done) {
-        connectGridDatabase(DB_HOSTNAME_TEST, DB_PORT_TEST).then(async (clt) => {
-            const repo: GridCRUDRepository = new MongoGridCRUDRepository(clt);
-            await retrievesACorrectGridAfterCreation(repo, () => {
-                clt.close();
-                done();
+        it('GET an identical grid after CREATE', function (done) {
+            repositoryAccess().then(repo => {
+               retrievesACorrectGridAfterCreation(repo, done);
             });
         });
-    });
 
-    it('Deletes a grid after creation', function (done) {
-        connectGridDatabase(DB_HOSTNAME_TEST, DB_PORT_TEST).then(async (clt) => {
-            const repo: GridCRUDRepository = new MongoGridCRUDRepository(clt);
-            await deletesGridAfterCreation(repo, () => {
-                clt.close();
-                done();
+        it('DELETE a grid after CREATE and GET an empty list', function (done) {
+            repositoryAccess().then(repo => {
+                deletesGridAfterCreation(repo, done);
             });
         });
+
     });
-});
+}
+
+function mongoRepositoryAccess(): Promise<GridCRUDRepository> {
+    return new Promise((resolve, _reject) => {
+        connectGridDatabase().then(clt => resolve(new MongoGridCRUDRepository(clt)));
+    });
+}
+
+testGridCRUDOperations("Local MongoDB", mongoRepositoryAccess, clearLocalMongoDB);
 
 export {
-    clear,
-    testGrid,
+    clearLocalMongoDB,
     createAGridWithoutError,
+    deletesGridAfterCreation,
     listEmptyGridsWithoutError,
     retrievesACorrectGridAfterCreation,
-    deletesGridAfterCreation
+    testGridCRUDOperations,
+    testGrid
 }

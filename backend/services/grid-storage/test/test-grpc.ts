@@ -3,22 +3,24 @@ import chai_as_promised from 'chai-as-promised';
 import * as messages from "../pb/grid_pb";
 import * as services from "../pb/grid_grpc_pb";
 import * as grpc from "@grpc/grpc-js";
-import {getMockAsPromise, testGrid} from './common';
-import {createAGridWithoutError, deletesGridAfterCreation, retrievesACorrectGridAfterCreation} from './test-database';
+import {asPromise, getMockRepositoryAsPromise, testGrid} from './common';
+import {
+    createAGridWithoutError,
+    deletesGridAfterCreation,
+    retrievesACorrectGridAfterCreation,
+    testGridCRUDOperations
+} from './test-database';
 import {GridRepositoryRPCWrapper, gridRPCasDAO, GridStoreServiceImpl} from '../service';
 import {describe} from 'mocha';
 import {GridDAO} from '../GridDAO';
 
 const expect = chai.expect;
 chai.use(chai_as_promised);
-const server = new GridStoreServiceImpl(getMockAsPromise());
+const server = new GridStoreServiceImpl(getMockRepositoryAsPromise());
 
-function clear(callback: () => void) {
-    server.repositoryAccess.then(repo => {
-        repo.deleteAll().then(_ => {
-            callback();
-        });
-    });
+async function clearServerRepository() {
+    const repo = await server.repositoryAccess;
+    await repo.deleteAll();
 }
 
 function createGridByNameRequest(name: string) {
@@ -27,7 +29,14 @@ function createGridByNameRequest(name: string) {
     return res;
 }
 
-describe('Connection to GRPC server', function () {
+function getLocalClient(port : number) : services.GridStoreClient {
+    return new services.GridStoreClient(
+        `localhost:${port}`,
+        grpc.credentials.createInsecure()
+    );
+}
+
+describe('Connection to GRPC server => Failure of these tests may indicate a wrong configuration, check that the local host accept internal communication to port 9999', function () {
     this.beforeAll(function (done) {
         server.listen(9999, done);
     });
@@ -36,27 +45,26 @@ describe('Connection to GRPC server', function () {
     });
 
     it('Should create a client without error', function () {
-        const client: services.GridStoreClient = new services.GridStoreClient(
-            "localhost:9999",
-            grpc.credentials.createInsecure()
-        );
+        const client = getLocalClient(9999);
+        client.close();
     });
 });
 
+function gRPCWrapperRepositoryAccess() {
+    return asPromise(new GridRepositoryRPCWrapper(getLocalClient(9999)));
+}
+
 describe('GRPC GetGrid Operations', function () {
-    const client: services.GridStoreClient = new services.GridStoreClient(
-        "localhost:9999",
-        grpc.credentials.createInsecure()
-    );
+    const client: services.GridStoreClient = getLocalClient(9999);
 
     this.beforeAll(function (done) {
-        server.listen(9999, () => clear(done));
+        server.listen(9999, () => clearServerRepository().then(done).catch(done));
     });
 
-    this.afterAll(function (done) {
+    this.afterAll(function () {
         client.close();
         server.forceClose();
-        clear(done);
+        return clearServerRepository();
     });
 
     it('Should retrieve an empty list without initial data', function (done) {
@@ -68,7 +76,7 @@ describe('GRPC GetGrid Operations', function () {
         stream.on('end', () => {
             expect(arr.length).to.be.eql(0);
             done();
-        })
+        });
     });
 
     it('Should fail when getting a non existing name', function (done) {
@@ -120,23 +128,20 @@ describe('GRPC GetGrid Operations', function () {
                 });
             }));
         });
-    })
+    });
 });
 
 describe('GRPC CreateGrid operations', function () {
-    const client: services.GridStoreClient = new services.GridStoreClient(
-        "localhost:9999",
-        grpc.credentials.createInsecure()
-    );
+    const client: services.GridStoreClient = getLocalClient(9999);
 
     this.beforeAll(function (done) {
-        server.listen(9999, () => clear(done));
+        server.listen(9999, () => clearServerRepository().then(done).catch(done));
     });
 
-    this.afterAll(function (done) {
+    this.afterAll(function () {
         client.close();
         server.forceClose();
-        clear(done);
+        return clearServerRepository();
     });
 
     it('Setup', function (done) {
@@ -189,46 +194,13 @@ describe('GRPC CreateGrid operations', function () {
     });
 });
 
-describe('CRUD GRPC Wrapper', function () {
-    const client: services.GridStoreClient = new services.GridStoreClient(
-        "localhost:9999",
-        grpc.credentials.createInsecure()
-    );
-    const noop = () => {
-    };
-
-    const repo = new GridRepositoryRPCWrapper(client);
-
-    this.beforeAll(function (done) {
-        server.listen(9999, () => clear(done));
-    });
-
-    beforeEach(function (done) {
-        return clear(done);
-    });
-
-    afterEach(function (done) {
-        return clear(done);
-    });
-
-    this.afterAll(function (done) {
-        server.forceClose();
-        clear(done);
-    });
-    it('Lists empty grids without error', function () {
-        return createAGridWithoutError(repo, noop)
-    });
-
-    it('Creates a grid without error', function () {
-        return createAGridWithoutError(repo, noop);
-    });
-
-    it('Retrieves a correct grid after creation', function () {
-        return retrievesACorrectGridAfterCreation(repo, noop);
-    });
-
-    it('Deletes a grid after creation', function () {
-        return deletesGridAfterCreation(repo, noop);
-    });
-
-});
+testGridCRUDOperations("GRPC Wrapper", gRPCWrapperRepositoryAccess, clearServerRepository,
+    () => {
+        return new Promise((resolve, reject) => {
+            server.listen(9999, () => clearServerRepository().then(resolve).catch(reject));
+        })
+    },
+    () => {
+        return asPromise(server.forceClose());
+    }
+);
