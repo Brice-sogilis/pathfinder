@@ -17,9 +17,9 @@ All the components can be deployed as container via Docker, and some stack profi
     - **/compose** docker compose stacks to debug locally, run ci tests or deploy the service along with it's related mongo database
 
 # Build docker images
-On Windows (cmd): ```build_images.ps1```
+On Windows (powershell): ```build_images.ps1```
 
-On Windows (powershell): ```build_images.cmd```
+On Windows (cmd): ```build_images.cmd```
 
 On Linux : ```bash build_images.sh```
 
