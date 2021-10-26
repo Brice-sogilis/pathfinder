@@ -2,14 +2,14 @@ import chai from 'chai'
 import chai_as_promised from 'chai-as-promised';
 import chaiHttp from 'chai-http';
 import {Gateway} from '../gateway';
-import {getMockAsPromise, testGrid} from '../../grid-storage/test/common';
+import {getMockRepositoryAsPromise, testGrid} from '../../grid-storage/test/common';
 
 const expect = chai.expect;
 chai.use(chai_as_promised);
 chai.use(chaiHttp);
-let should = chai.should();
+chai.should();
 
-const gw: Gateway = new Gateway(getMockAsPromise());
+const gw: Gateway = new Gateway(getMockRepositoryAsPromise());
 const app = gw.app;
 
 async function clear() {
